@@ -7,7 +7,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const payload = await getAuthUser(request);
     if (!payload) return NextResponse.json({ message: "არაავტორიზებული" }, { status: 401 });
     const { id } = await params;
-    const conv = await prisma.conversation.findUnique({ where: { id } });
+    const conv = await prisma.conversation.findUnique({ where: { id }, include: { shop: true } });
     if (!conv || (conv.userId !== payload.userId && conv.shop.userId !== payload.userId)) {
       return NextResponse.json({ message: "არ მოიძებნა" }, { status: 404 });
     }

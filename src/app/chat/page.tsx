@@ -20,11 +20,10 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
-    fetch("/api/conversations", { headers: authHeaders }).then(r => r.json()).then(data => setConversations(data.conversations || [])).catch(() => {});
+    fetch("/api/conversations", { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then(r => r.json()).then(data => setConversations(data.conversations || [])).catch(() => {});
   }, [user, router]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
@@ -32,7 +31,7 @@ export default function ChatPage() {
   const openConversation = async (conv: any) => {
     setActiveConv(conv);
     try {
-      const res = await fetch(`/api/conversations/${conv.id}`, { headers: authHeaders });
+      const res = await fetch(`/api/conversations/${conv.id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       const data = await res.json();
       setMessages(data.messages || []);
     } catch { setMessages([]); }
@@ -43,7 +42,7 @@ export default function ChatPage() {
     if (!messageInput.trim() || !activeConv) return;
     try {
       const res = await fetch("/api/messages", {
-        method: "POST", headers: { ...authHeaders, "Content-Type": "application/json" },
+        method: "POST", headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), "Content-Type": "application/json" },
         body: JSON.stringify({ conversationId: activeConv.id, content: messageInput.trim() }),
       });
       const data = await res.json();
