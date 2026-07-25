@@ -2,25 +2,220 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { HiOutlineShoppingCart, HiOutlineCreditCard, HiOutlineMapPin, HiOutlineCheck, HiOutlineXMark } from "react-icons/hi2";
+import { motion, AnimatePresence } from "framer-motion";
+import { HiOutlineShoppingCart, HiOutlineCreditCard, HiOutlineMapPin, HiOutlineCheck, HiOutlineXMark, HiOutlineLockClosed } from "react-icons/hi2";
 import { ge } from "@/lib/ge";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { formatPrice, parseJsonArray } from "@/lib/utils";
 import toast from "react-hot-toast";
 
+function groupByShop(items: any[]) {
+  const map = new Map<string, { shop: any; items: any[]; total: number }>();
+  for (const item of items) {
+    const shopId = item.product.shopId;
+    if (!map.has(shopId)) {
+      map.set(shopId, { shop: item.product.shop || { id: shopId, name: "მაღაზია" }, items: [], total: 0 });
+    }
+    const group = map.get(shopId)!;
+    const price = item.product.discountPrice || item.product.price;
+    group.items.push({ productId: item.product.id, quantity: item.quantity, price });
+    group.total += price * item.quantity;
+  }
+  return Array.from(map.values());
+}
+
+function formatCardNumber(val: string) {
+  return val.replace(/\D/g, "").slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1 ");
+}
+
+function formatExpiry(val: string) {
+  const digits = val.replace(/\D/g, "").slice(0, 4);
+  return digits.length > 2 ? digits.slice(0, 2) + "/" + digits.slice(2) : digits;
+}
+
+function CardForm({ onSubmit, onCancel }: { onSubmit: (data: any) => void; onCancel: () => void }) {
+  const [number, setNumber] = useState("");
+  const [name, setName] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanNumber = number.replace(/\s/g, "");
+    if (cleanNumber.length < 13 || expiry.length < 5 || cvv.length < 3 || !name.trim()) {
+      toast.error(ge.cart.invalidCard);
+      return;
+    }
+    onSubmit({ cardNumber: cleanNumber, cardholderName: name, expiry, cvv });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{ge.cart.cardNumber}</label>
+        <input type="text" value={number} onChange={e => setNumber(formatCardNumber(e.target.value))} placeholder="1234 5678 9012 3456" maxLength={19} className="input-field font-mono tracking-wider" />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{ge.cart.cardholderName}</label>
+        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="JOE DOE" className="input-field uppercase" />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{ge.cart.expiryDate}</label>
+          <input type="text" value={expiry} onChange={e => setExpiry(formatExpiry(e.target.value))} placeholder="MM/YY" maxLength={5} className="input-field font-mono" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{ge.cart.cvv}</label>
+          <input type="text" value={cvv} onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" maxLength={4} className="input-field font-mono" />
+        </div>
+      </div>
+      <div className="flex gap-3 pt-2">
+        <button type="button" onClick={onCancel} className="btn-secondary flex-1 justify-center">{ge.common.cancel}</button>
+        <button type="submit" className="btn-primary flex-1 justify-center">{ge.cart.payNow}</button>
+      </div>
+    </form>
+  );
+}
+
+function PayPalModal({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: () => void }) {
+  const [step, setStep] = useState<"redirect" | "login" | "confirm">("redirect");
+  const [email, setEmail] = useState("");
+
+  if (step === "redirect") {
+    setTimeout(() => setStep("login"), 1500);
+    return (
+      <div className="text-center py-8 space-y-4">
+        <div className="w-16 h-16 mx-auto bg-[#003087] rounded-full flex items-center justify-center">
+          <span className="text-white font-bold text-xl">P</span>
+        </div>
+        <p className="font-semibold text-lg">{ge.cart.paypalRedirect}</p>
+        <div className="flex justify-center">
+          <div className="w-8 h-8 border-2 border-[#003087] border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (step === "login") {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 pb-4 border-b">
+          <div className="w-10 h-10 bg-[#003087] rounded-full flex items-center justify-center">
+            <span className="text-white font-bold">P</span>
+          </div>
+          <span className="font-bold text-lg text-[#003087]">PayPal</span>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">ელ. ფოსტა</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="example@email.com" className="input-field" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">პაროლი</label>
+          <input type="password" value="••••••••" disabled className="input-field bg-gray-50 text-gray-400" />
+          <p className="text-xs text-gray-400 mt-1">დემო რეჟიმი - ნებისმიერი ელ.ფოსტა</p>
+        </div>
+        <button onClick={() => setStep("confirm")} disabled={!email.trim()} className="bg-[#003087] text-white w-full py-3 rounded-full font-semibold hover:bg-[#002870] transition-colors disabled:opacity-50">
+          შესვლა
+        </button>
+        <button onClick={onCancel} className="text-sm text-gray-500 w-full text-center hover:underline">{ge.common.cancel}</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 text-green-600 pb-4 border-b">
+        <HiOutlineCheck className="w-5 h-5" />
+        <span className="font-semibold">PayPal-ზე წარმატებით შეხვედით</span>
+      </div>
+      <div className="bg-gray-50 rounded-xl p-4 text-sm space-y-2">
+        <div className="flex justify-between"><span>გადამხდელი:</span><span className="font-medium">{email}</span></div>
+        <div className="flex justify-between"><span>გადახდის მეთოდი:</span><span className="font-medium">PayPal ბალანსი</span></div>
+        <div className="border-t pt-2 flex justify-between font-bold"><span>{ge.cart.total}</span><span className="text-[#003087]">{formatPrice(0)}</span></div>
+      </div>
+      <button onClick={onSuccess} className="bg-[#003087] text-white w-full py-3 rounded-full font-semibold hover:bg-[#002870] transition-colors">
+        {ge.cart.payNow}
+      </button>
+      <button onClick={onCancel} className="text-sm text-gray-500 w-full text-center hover:underline">{ge.common.cancel}</button>
+    </div>
+  );
+}
+
 export default function CartPage() {
   const { user } = useAuthStore();
-  const { items, removeItem, updateQuantity, getTotal } = useCartStore();
+  const { items, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
   const router = useRouter();
   const [step, setStep] = useState<"cart" | "shipping" | "payment">("cart");
   const [address, setAddress] = useState({ fullName: "", phone: "", street: "", city: "" });
+  const [paymentModal, setPaymentModal] = useState<"card" | "paypal" | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const [completedOrders, setCompletedOrders] = useState<any[]>([]);
 
   if (!user) { router.push("/login"); return null; }
 
   const total = getTotal();
   const shipping = total > 200 ? 0 : 15;
+
+  const createOrders = async () => {
+    setProcessing(true);
+    const shopGroups = groupByShop(items);
+    const created: any[] = [];
+    try {
+      for (const group of shopGroups) {
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: group.items,
+            shopId: group.shop.id,
+            address: { fullName: address.fullName, phone: address.phone, street: address.street, city: address.city },
+            note: null,
+            shipping: total > 200 ? 0 : 15,
+          }),
+        });
+        if (!res.ok) throw new Error("Order creation failed");
+        const data = await res.json();
+        created.push(data.order);
+      }
+      clearCart();
+      setCompletedOrders(created);
+      toast.success(ge.cart.paymentSuccess);
+    } catch {
+      toast.error(ge.cart.paymentFailed);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  if (completedOrders.length > 0) {
+    return (
+      <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
+        <div className="container-custom py-16 text-center">
+          <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-6">
+            <HiOutlineCheck className="w-10 h-10 text-green-600" />
+          </div>
+          <h1 className="text-2xl font-bold mb-2">{ge.cart.orderPlaced}</h1>
+          <p className="text-gray-500 mb-8 max-w-md mx-auto">{ge.cart.orderConfirmed}</p>
+          <div className="max-w-md mx-auto space-y-3 mb-8">
+            {completedOrders.map((o) => (
+              <div key={o.id} className="glass-card p-4 flex items-center justify-between">
+                <div className="text-left">
+                  <p className="text-xs text-gray-500">{ge.cart.orderNumber}</p>
+                  <p className="font-mono font-semibold">{o.orderNumber}</p>
+                </div>
+                <span className="text-primary font-bold">{formatPrice(o.total)}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-4 justify-center">
+            <button onClick={() => router.push("/products")} className="btn-primary">{ge.cart.continueShopping}</button>
+            <button onClick={() => router.push("/orders")} className="btn-secondary">{ge.cart.viewOrder}</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0 && step === "cart") {
     return (
@@ -97,26 +292,27 @@ export default function CartPage() {
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2"><HiOutlineCreditCard className="w-5 h-5" /> გადახდა</h2>
                 <p className="text-sm text-gray-500 mb-6">აირჩიეთ გადახდის მეთოდი</p>
                 <div className="space-y-3">
-                  <button onClick={() => toast.success("გადახდა წარმატებით დასრულდა!")} className="w-full p-4 border-2 border-primary/20 rounded-xl hover:border-primary transition-colors flex items-center gap-4">
-                    <div className="w-12 h-8 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-bold">VISA</div>
+                  <button onClick={() => setPaymentModal("card")} className="w-full p-4 border-2 border-primary/20 rounded-xl hover:border-primary transition-colors flex items-center gap-4">
+                    <div className="w-14 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm">VISA</div>
                     <div className="text-left">
-                      <p className="font-semibold text-sm">ბარათით გადახდა</p>
+                      <p className="font-semibold text-sm">{ge.cart.cardPayment}</p>
                       <p className="text-xs text-gray-500">Visa / Mastercard / American Express</p>
                     </div>
+                    <HiOutlineLockClosed className="w-4 h-4 text-gray-300 ml-auto" />
                   </button>
-                  <button onClick={() => toast.success("გადახდა წარმატებით დასრულდა!")} className="w-full p-4 border-2 border-primary/20 rounded-xl hover:border-primary transition-colors flex items-center gap-4">
-                    <div className="w-12 h-8 bg-[#003087] rounded flex items-center justify-center text-white text-xs font-bold">PP</div>
+                  <button onClick={() => setPaymentModal("paypal")} className="w-full p-4 border-2 border-primary/20 rounded-xl hover:border-primary transition-colors flex items-center gap-4">
+                    <div className="w-14 h-10 bg-[#003087] rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm">PayPal</div>
                     <div className="text-left">
-                      <p className="font-semibold text-sm">PayPal</p>
-                      <p className="text-xs text-gray-500">უსაფრთხო გადახდა PayPal-ით</p>
+                      <p className="font-semibold text-sm">{ge.cart.paypal}</p>
+                      <p className="text-xs text-gray-500">{ge.cart.paypalInfo}</p>
                     </div>
-                    <span className="ml-auto text-xs text-gray-400"> скоро</span>
+                    <HiOutlineLockClosed className="w-4 h-4 text-gray-300 ml-auto" />
                   </button>
-                  <button onClick={() => toast.success("გადახდა წარმატებით დასრულდა!")} className="w-full p-4 border-2 border-primary/20 rounded-xl hover:border-primary transition-colors flex items-center gap-4">
-                    <div className="w-12 h-8 bg-green-500 rounded flex items-center justify-center text-white text-xs font-bold">₾</div>
+                  <button onClick={createOrders} disabled={processing} className="w-full p-4 border-2 border-primary/20 rounded-xl hover:border-primary transition-colors flex items-center gap-4">
+                    <div className="w-14 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white text-lg font-bold shadow-sm">₾</div>
                     <div className="text-left">
-                      <p className="font-semibold text-sm">გადახდა ნაღდი ანგარიშსწორებით</p>
-                      <p className="text-xs text-gray-500">გადაიხადეთ მიღებისას</p>
+                      <p className="font-semibold text-sm">{ge.cart.cash}</p>
+                      <p className="text-xs text-gray-500">{ge.cart.cashInfo}</p>
                     </div>
                   </button>
                 </div>
@@ -136,6 +332,36 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {paymentModal === "card" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setPaymentModal(null)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm">VISA</div>
+                <h3 className="font-bold text-lg">{ge.cart.cardPayment}</h3>
+              </div>
+              <CardForm onSubmit={async () => { await createOrders(); setPaymentModal(null); }} onCancel={() => setPaymentModal(null)} />
+              {processing && (
+                <div className="absolute inset-0 bg-white/80 rounded-2xl flex items-center justify-center">
+                  <div className="text-center space-y-3">
+                    <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                    <p className="text-sm text-gray-500">{ge.cart.processingPayment}</p>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+
+        {paymentModal === "paypal" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setPaymentModal(null)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
+              <PayPalModal onSuccess={async () => { await createOrders(); setPaymentModal(null); }} onCancel={() => setPaymentModal(null)} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

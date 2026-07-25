@@ -19,37 +19,56 @@ interface CartState {
   getItemCount: () => number;
 }
 
+function saveCart(items: CartItem[]) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("cart", JSON.stringify(items));
+  }
+}
+
+function loadCart(): CartItem[] {
+  if (typeof window !== "undefined") {
+    try {
+      const saved = localStorage.getItem("cart");
+      return saved ? JSON.parse(saved) : [];
+    } catch {}
+  }
+  return [];
+}
+
 export const useCartStore = create<CartState>((set, get) => ({
-  items: [],
+  items: loadCart(),
   isOpen: false,
   addItem: (product, quantity = 1) => {
     set((state) => {
       const existing = state.items.find((item) => item.product.id === product.id);
-      if (existing) {
-        return {
-          items: state.items.map((item) =>
+      const items = existing
+        ? state.items.map((item) =>
             item.product.id === product.id
               ? { ...item, quantity: item.quantity + quantity }
               : item
-          ),
-        };
-      }
-      return { items: [...state.items, { product, quantity }] };
+          )
+        : [...state.items, { product, quantity }];
+      saveCart(items);
+      return { items };
     });
   },
   removeItem: (productId) => {
-    set((state) => ({
-      items: state.items.filter((item) => item.product.id !== productId),
-    }));
+    set((state) => {
+      const items = state.items.filter((item) => item.product.id !== productId);
+      saveCart(items);
+      return { items };
+    });
   },
   updateQuantity: (productId, quantity) => {
-    set((state) => ({
-      items: state.items.map((item) =>
+    set((state) => {
+      const items = state.items.map((item) =>
         item.product.id === productId ? { ...item, quantity } : item
-      ),
-    }));
+      );
+      saveCart(items);
+      return { items };
+    });
   },
-  clearCart: () => set({ items: [] }),
+  clearCart: () => { saveCart([]); set({ items: [] }); },
   toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
   setOpen: (isOpen) => set({ isOpen }),
   getTotal: () => {

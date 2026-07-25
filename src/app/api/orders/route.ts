@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   try {
     const payload = await getAuthUser(request);
     if (!payload) return NextResponse.json({ message: "არაავტორიზებული" }, { status: 401 });
-    const { items, address, note, shopId } = await request.json();
+    const { items, address, note, shopId, shipping: shippingCost } = await request.json();
     if (!items?.length || !address || !shopId) {
       return NextResponse.json({ message: "მონაცემები არასრულია" }, { status: 400 });
     }
@@ -34,12 +34,14 @@ export async function POST(request: NextRequest) {
       const price = product.discountPrice || product.price;
       subtotal += price * item.quantity;
       orderItems.push({ productId: product.id, quantity: item.quantity, price });
+      await prisma.product.update({ where: { id: product.id }, data: { stock: Math.max(0, product.stock - item.quantity), soldCount: product.soldCount + item.quantity } });
     }
+    const shipping = typeof shippingCost === "number" ? shippingCost : 0;
     const order = await prisma.order.create({
       data: {
         orderNumber: generateOrderNumber(), userId: payload.userId, shopId,
-        subtotal, shipping: 0, discount: 0, total: subtotal,
-        note: note || null, fullName: address.fullName, phone: address.phone,
+        subtotal, shipping, discount: 0, total: subtotal + shipping,
+        paidAt: new Date(), note: note || null, fullName: address.fullName, phone: address.phone,
         street: address.street, city: address.city, region: address.region || null, zipCode: address.zipCode || null,
         items: { create: orderItems },
       },
