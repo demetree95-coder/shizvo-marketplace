@@ -7,7 +7,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiOutlinePlus, HiOutlinePencilSquare, HiOutlineTrash, HiOutlineXMark, HiOutlineEye } from "react-icons/hi2";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { useAuthStore } from "@/store/authStore";
 import { formatPrice, parseJsonArray } from "@/lib/utils";
 
@@ -21,6 +21,7 @@ export default function DashboardProductsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({ name: "", description: "", price: "", discountPrice: "", stock: "0", sku: "", categoryId: "", images: "", features: "", deliveryInfo: "" });
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const t = useT();
 
   useEffect(() => {
     if (!user || user.role === "USER") { router.push("/"); return; }
@@ -79,7 +80,7 @@ export default function DashboardProductsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      toast.success(ge.dashboard.addProduct);
+      toast.success(t.dashboard.addProduct);
       setShowAddForm(false);
       setForm({ name: "", description: "", price: "", discountPrice: "", stock: "0", sku: "", categoryId: "", images: "", features: "", deliveryInfo: "" });
       setUploadedImages([]);
@@ -93,9 +94,9 @@ export default function DashboardProductsPage() {
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold">{ge.dashboard.products}</h1>
+          <h1 className="text-2xl font-bold">{t.dashboard.products}</h1>
           <button onClick={() => setShowAddForm(true)} className="btn-primary text-sm">
-            <HiOutlinePlus className="w-4 h-4" /> {ge.dashboard.addProduct}
+            <HiOutlinePlus className="w-4 h-4" /> {t.dashboard.addProduct}
           </button>
         </div>
 
@@ -104,7 +105,7 @@ export default function DashboardProductsPage() {
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-6">
               <div className="glass-card p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold">{ge.dashboard.addProduct}</h3>
+                  <h3 className="font-semibold">{t.dashboard.addProduct}</h3>
                   <button onClick={() => setShowAddForm(false)} className="p-1 hover:bg-gray-100 rounded-lg"><HiOutlineXMark className="w-5 h-5" /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -136,8 +137,8 @@ export default function DashboardProductsPage() {
                   <input className="input-field" placeholder="მახასიათებლები (მძიმით გამოყოფილი)" value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} />
                   <textarea className="input-field md:col-span-2" rows={2} placeholder="მიწოდების ინფორმაცია" value={form.deliveryInfo} onChange={(e) => setForm({ ...form, deliveryInfo: e.target.value })} />
                   <div className="md:col-span-2 flex gap-3">
-                    <button type="submit" className="btn-primary">{ge.common.save}</button>
-                    <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary">{ge.common.cancel}</button>
+                    <button type="submit" className="btn-primary">{t.common.save}</button>
+                    <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary">{t.common.cancel}</button>
                   </div>
                 </form>
               </div>
@@ -172,8 +173,8 @@ export default function DashboardProductsPage() {
             {products.length === 0 && (
               <div className="col-span-full text-center py-20">
                 <p className="text-4xl mb-4">📦</p>
-                <p className="text-gray-500 mb-4">{ge.products.noProducts}</p>
-                <button onClick={() => setShowAddForm(true)} className="btn-primary">{ge.dashboard.addProduct}</button>
+                <p className="text-gray-500 mb-4">{t.products.noProducts}</p>
+                <button onClick={() => setShowAddForm(true)} className="btn-primary">{t.dashboard.addProduct}</button>
               </div>
             )}
           </div>

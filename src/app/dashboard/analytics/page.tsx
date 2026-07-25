@@ -2,7 +2,7 @@
 
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 
 const monthlyData = [
@@ -21,13 +21,14 @@ const COLORS = ["#2563eb", "#06b6d4", "#8b5cf6", "#f59e0b"];
 export default function AnalyticsPage() {
   const { user } = useAuthStore();
   const router = useRouter();
+  const t = useT();
 
   if (!user || user.role === "USER") { router.push("/"); return null; }
 
   return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-8">
-        <h1 className="text-2xl font-bold mb-8">{ge.dashboard.analytics}</h1>
+        <h1 className="text-2xl font-bold mb-8">{t.dashboard.analytics}</h1>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="glass-card p-6">
             <h3 className="font-semibold mb-4">შემოსავალი</h3>

@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 
 export default function AdminUsersPage() {
   const { user } = useAuthStore();
   const router = useRouter();
   const [users, setUsers] = useState<any[]>([]);
+  const t = useT();
 
   useEffect(() => {
     if (!user || user.role !== "ADMIN") { router.push("/"); return; }
@@ -20,7 +21,7 @@ export default function AdminUsersPage() {
   return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-8">
-        <h1 className="text-2xl font-bold mb-8">{ge.admin.users}</h1>
+        <h1 className="text-2xl font-bold mb-8">{t.admin.users}</h1>
         <div className="glass-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

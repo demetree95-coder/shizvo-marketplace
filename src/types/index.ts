@@ -136,17 +136,6 @@ export interface MessageType {
   conversationId: string;
 }
 
-export interface NotificationType {
-  id: string;
-  title: string;
-  message: string;
-  type: string;
-  isRead: boolean;
-  link: string | null;
-  createdAt: string;
-  userId: string;
-}
-
 export interface CouponType {
   id: string;
   code: string;

@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 
 export default function AdminShopsPage() {
   const { user } = useAuthStore();
   const router = useRouter();
   const [shops, setShops] = useState<any[]>([]);
+  const t = useT();
 
   useEffect(() => {
     if (!user || user.role !== "ADMIN") { router.push("/"); return; }
@@ -35,7 +36,7 @@ export default function AdminShopsPage() {
   return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-8">
-        <h1 className="text-2xl font-bold mb-8">{ge.admin.shops}</h1>
+        <h1 className="text-2xl font-bold mb-8">{t.admin.shops}</h1>
         <div className="glass-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -57,7 +58,7 @@ export default function AdminShopsPage() {
                     <td className="p-4"><span className={`badge ${shop.isBlocked ? "badge-red" : "badge-green"}`}>{shop.isBlocked ? "დაბლოკილი" : "აქტიური"}</span></td>
                     <td className="p-4">
                       <button onClick={() => toggleBlock(shop.id, shop.isBlocked)} className={`btn-${shop.isBlocked ? "primary" : "danger"} text-xs py-1.5 px-3`}>
-                        {shop.isBlocked ? ge.admin.unblock : ge.admin.block}
+                        {shop.isBlocked ? t.admin.unblock : t.admin.block}
                       </button>
                     </td>
                   </tr>

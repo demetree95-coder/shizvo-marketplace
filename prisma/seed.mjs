@@ -17,7 +17,7 @@ const db = getClient();
 function uid() { return crypto.randomBytes(12).toString("hex"); }
 
 async function run() {
-  const tables = ["Coupon", "Review", "OrderItem", "Order", "WishlistItem", "Wishlist", "CartItem", "Cart", "Message", "Conversation", "Notification", "Address", "Product", "Shop", "Category", "User"];
+  const tables = ["Coupon", "Review", "OrderItem", "Order", "WishlistItem", "Wishlist", "CartItem", "Cart", "Message", "Conversation", "Address", "Product", "Shop", "Category", "User"];
   for (const t of tables) {
     try { await db.execute({ sql: `DELETE FROM \"${t}\"`, args: [] }); } catch {}
   }
@@ -137,6 +137,12 @@ async function run() {
       args: [id, p.name, p.slug, desc, p.price, p.discount || null, p.stock, images, features, "მიწოდება მთელი საქართველოს მასშტაბით 2-3 დღეში", sku, 1, p.rating, p.reviews, p.sold, shopIds[p.shop], catIds[p.cat], now, now],
     });
   }
+
+  const couponId = uid();
+  await db.execute({
+    sql: "INSERT INTO Coupon (id, code, discount, type, maxUses, usedCount, expiresAt, isActive, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    args: [couponId, "RAAMBAVIASHECHEMA", 15, "percentage", 1000, 0, "2027-12-31T23:59:59.000Z", 1, now],
+  });
 
   console.log("✅ Database seeded successfully!");
   console.log("👤 Admin: demetree95@gmail.com / demetre!2$45");

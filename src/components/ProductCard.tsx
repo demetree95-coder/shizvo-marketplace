@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { HiOutlineHeart, HiOutlineShoppingCart, HiStar } from "react-icons/hi2";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { useCartStore } from "@/store/cartStore";
 import { formatPrice, calculateDiscount, truncate, parseJsonArray } from "@/lib/utils";
 import { ProductType } from "@/types";
@@ -19,6 +19,7 @@ export default function ProductCard({ product, index = 0 }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const images = parseJsonArray<string>(product.images as any);
   const discount = product.discountPrice ? calculateDiscount(product.price, product.discountPrice) : 0;
+  const t = useT();
 
   return (
     <motion.div
@@ -39,11 +40,11 @@ export default function ProductCard({ product, index = 0 }: Props) {
           <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">No Image</div>
         )}
         {discount > 0 && (
-          <span className="absolute top-3 left-3 badge badge-red">{discount}% {ge.products.discount}</span>
+          <span className="absolute top-3 left-3 badge badge-red">{discount}% {t.products.discount}</span>
         )}
         {product.stock <= 0 && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="bg-white text-gray-900 px-4 py-1.5 rounded-full text-sm font-semibold">{ge.products.outOfStock}</span>
+            <span className="bg-white text-gray-900 px-4 py-1.5 rounded-full text-sm font-semibold">{t.products.outOfStock}</span>
           </div>
         )}
         <button className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-all opacity-0 group-hover:opacity-100">

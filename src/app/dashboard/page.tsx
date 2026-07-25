@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { HiOutlineShoppingBag, HiOutlineCurrencyDollar, HiOutlineUsers, HiOutlineClipboardDocumentList, HiOutlinePlus, HiOutlineArrowUp } from "react-icons/hi2";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { useAuthStore } from "@/store/authStore";
 import { formatPrice } from "@/lib/utils";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [shop, setShop] = useState<any>(null);
   const [stats, setStats] = useState({ todaySales: 0, monthlySales: 0, revenue: 0, totalOrders: 0, totalCustomers: 0 });
+  const t = useT();
 
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
@@ -29,19 +30,19 @@ export default function DashboardPage() {
   if (!user || user.role === "USER") return null;
 
   const cards = [
-    { icon: HiOutlineCurrencyDollar, label: ge.dashboard.todaySales, value: formatPrice(stats.todaySales), color: "from-green-500 to-emerald-600" },
-    { icon: HiOutlineShoppingBag, label: ge.dashboard.monthlySales, value: formatPrice(stats.monthlySales), color: "from-blue-500 to-indigo-600" },
-    { icon: HiOutlineClipboardDocumentList, label: ge.dashboard.totalOrders, value: stats.totalOrders.toString(), color: "from-purple-500 to-pink-600" },
-    { icon: HiOutlineUsers, label: ge.dashboard.totalCustomers, value: stats.totalCustomers.toString(), color: "from-orange-500 to-red-600" },
+    { icon: HiOutlineCurrencyDollar, label: t.dashboard.todaySales, value: formatPrice(stats.todaySales), color: "from-green-500 to-emerald-600" },
+    { icon: HiOutlineShoppingBag, label: t.dashboard.monthlySales, value: formatPrice(stats.monthlySales), color: "from-blue-500 to-indigo-600" },
+    { icon: HiOutlineClipboardDocumentList, label: t.dashboard.totalOrders, value: stats.totalOrders.toString(), color: "from-purple-500 to-pink-600" },
+    { icon: HiOutlineUsers, label: t.dashboard.totalCustomers, value: stats.totalCustomers.toString(), color: "from-orange-500 to-red-600" },
   ];
 
   return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold">{ge.dashboard.title}</h1>
+          <h1 className="text-2xl font-bold">{t.dashboard.title}</h1>
           <Link href="/dashboard/products" className="btn-primary text-sm">
-            <HiOutlinePlus className="w-4 h-4" /> {ge.dashboard.addProduct}
+            <HiOutlinePlus className="w-4 h-4" /> {t.dashboard.addProduct}
           </Link>
         </div>
 
@@ -80,7 +81,7 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           </div>
           <div className="glass-card p-6">
-            <h3 className="font-semibold mb-4">{ge.dashboard.bestSellers}</h3>
+            <h3 className="font-semibold mb-4">{t.dashboard.bestSellers}</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -95,11 +96,11 @@ export default function DashboardPage() {
 
         <div className="glass-card p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">{ge.dashboard.overview}</h3>
+            <h3 className="font-semibold">{t.dashboard.overview}</h3>
             <div className="flex gap-2">
-              <Link href="/dashboard/products" className="text-sm text-primary hover:underline">{ge.dashboard.products}</Link>
-              <Link href="/dashboard/orders" className="text-sm text-primary hover:underline">{ge.dashboard.orders}</Link>
-              <Link href="/dashboard/analytics" className="text-sm text-primary hover:underline">{ge.dashboard.analytics}</Link>
+              <Link href="/dashboard/products" className="text-sm text-primary hover:underline">{t.dashboard.products}</Link>
+              <Link href="/dashboard/orders" className="text-sm text-primary hover:underline">{t.dashboard.orders}</Link>
+              <Link href="/dashboard/analytics" className="text-sm text-primary hover:underline">{t.dashboard.analytics}</Link>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

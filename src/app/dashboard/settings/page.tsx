@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { useAuthStore } from "@/store/authStore";
 import { HiOutlinePlus } from "react-icons/hi2";
 
@@ -14,6 +14,7 @@ export default function DashboardSettingsPage() {
   const [hasShop, setHasShop] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", logo: "", banner: "", contactEmail: "", contactPhone: "", facebook: "", instagram: "", tiktok: "", youtube: "", website: "" });
   const [loading, setLoading] = useState(true);
+  const t = useT();
 
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
@@ -57,14 +58,14 @@ export default function DashboardSettingsPage() {
   return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-8">
-        <h1 className="text-2xl font-bold mb-8">{hasShop ? ge.shop.edit : ge.shop.create}</h1>
+        <h1 className="text-2xl font-bold mb-8">{hasShop ? t.shop.edit : t.shop.create}</h1>
         <div className="max-w-2xl">
           <div className="glass-card p-6">
             <form onSubmit={hasShop ? updateShop : createShop} className="space-y-4">
-              <input className="input-field" placeholder={ge.shop.name + " *"} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required={!hasShop} />
-              <textarea className="input-field" rows={3} placeholder={ge.shop.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              <input className="input-field" placeholder={ge.shop.logo + " (URL)"} value={form.logo} onChange={(e) => setForm({ ...form, logo: e.target.value })} />
-              <input className="input-field" placeholder={ge.shop.banner + " (URL)"} value={form.banner} onChange={(e) => setForm({ ...form, banner: e.target.value })} />
+              <input className="input-field" placeholder={t.shop.name + " *"} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required={!hasShop} />
+              <textarea className="input-field" rows={3} placeholder={t.shop.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              <input className="input-field" placeholder={t.shop.logo + " (URL)"} value={form.logo} onChange={(e) => setForm({ ...form, logo: e.target.value })} />
+              <input className="input-field" placeholder={t.shop.banner + " (URL)"} value={form.banner} onChange={(e) => setForm({ ...form, banner: e.target.value })} />
               <input className="input-field" placeholder="ელ. ფოსტა" value={form.contactEmail} onChange={(e) => setForm({ ...form, contactEmail: e.target.value })} />
               <input className="input-field" placeholder="ტელეფონი" value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} />
               <div className="grid grid-cols-2 gap-4">
@@ -74,7 +75,7 @@ export default function DashboardSettingsPage() {
                 <input className="input-field" placeholder="YouTube" value={form.youtube} onChange={(e) => setForm({ ...form, youtube: e.target.value })} />
               </div>
               <input className="input-field" placeholder="ვებ-გვერდი" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} />
-              <button type="submit" className="btn-primary">{hasShop ? ge.common.save : ge.shop.create}</button>
+              <button type="submit" className="btn-primary">{hasShop ? t.common.save : t.shop.create}</button>
             </form>
           </div>
         </div>

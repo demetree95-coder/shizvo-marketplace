@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { formatPrice, formatDate } from "@/lib/utils";
 
 const statusStyles: Record<string, string> = {
@@ -19,6 +19,7 @@ export default function OrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useT();
 
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
@@ -28,14 +29,14 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-8">
-        <h1 className="text-2xl font-bold mb-8">{ge.orders.title}</h1>
+        <h1 className="text-2xl font-bold mb-8">{t.orders.title}</h1>
         {loading ? (
-          <p className="text-gray-400 text-center py-20">{ge.common.loading}</p>
+          <p className="text-gray-400 text-center py-20">{t.common.loading}</p>
         ) : orders.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-5xl mb-4">📦</p>
-            <p className="text-gray-500 mb-6">{ge.orders.noOrders}</p>
-            <button onClick={() => router.push("/products")} className="btn-primary">{ge.cart.continueShopping}</button>
+            <p className="text-gray-500 mb-6">{t.orders.noOrders}</p>
+            <button onClick={() => router.push("/products")} className="btn-primary">{t.cart.continueShopping}</button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -47,7 +48,7 @@ export default function OrdersPage() {
                     <p className="text-xs text-gray-400">{formatDate(order.createdAt)}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`text-xs font-medium px-3 py-1 rounded-full ${statusStyles[order.status] || "text-gray-700 bg-gray-50"}`}>{ge.orders.statuses[order.status as keyof typeof ge.orders.statuses] || order.status}</span>
+                    <span className={`text-xs font-medium px-3 py-1 rounded-full ${statusStyles[order.status] || "text-gray-700 bg-gray-50"}`}>{t.orders.statuses[order.status as keyof typeof t.orders.statuses] || order.status}</span>
                     <span className="font-bold text-primary">{formatPrice(order.total)}</span>
                   </div>
                 </div>

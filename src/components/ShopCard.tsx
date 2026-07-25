@@ -1,8 +1,9 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import { HiStar } from "react-icons/hi2";
 import { ShopType } from "@/types";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 
 interface Props {
   shop: ShopType;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function ShopCard({ shop, index = 0 }: Props) {
+  const t = useT();
   return (
     <Link
       href={`/shop/${shop.id}`}
@@ -27,7 +29,7 @@ export default function ShopCard({ shop, index = 0 }: Props) {
         <HiStar className="w-4 h-4 text-yellow-400 fill-current" />
         <span className="text-sm text-gray-600">{shop.rating.toFixed(1)}</span>
       </div>
-      <p className="text-xs text-gray-500">{shop._count?.products || 0} {ge.shop.products}</p>
+      <p className="text-xs text-gray-500">{shop._count?.products || 0} {t.shop.products}</p>
       {shop.isFeatured && (
         <span className="mt-2 badge badge-blue">გამორჩეული</span>
       )}

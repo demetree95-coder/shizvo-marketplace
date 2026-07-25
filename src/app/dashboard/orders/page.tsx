@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { formatPrice, formatDate, getStatusColor, getStatusIcon } from "@/lib/utils";
@@ -12,6 +12,7 @@ export default function DashboardOrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useT();
 
   useEffect(() => {
     if (!user || user.role === "USER") { router.push("/"); return; }
@@ -33,7 +34,7 @@ export default function DashboardOrdersPage() {
   return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-8">
-        <h1 className="text-2xl font-bold mb-8">{ge.dashboard.orders}</h1>
+        <h1 className="text-2xl font-bold mb-8">{t.dashboard.orders}</h1>
         <div className="space-y-4">
           {orders.map((order) => (
             <div key={order.id} className="glass-card p-6">
@@ -44,7 +45,7 @@ export default function DashboardOrdersPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <select value={order.status} onChange={(e) => updateStatus(order.id, e.target.value)} className="input-field text-sm py-1.5 w-auto">
-                    {Object.entries(ge.orders.statuses).map(([key, val]) => (
+                    {Object.entries(t.orders.statuses).map(([key, val]) => (
                       <option key={key} value={key}>{val}</option>
                     ))}
                   </select>
@@ -62,7 +63,7 @@ export default function DashboardOrdersPage() {
             </div>
           ))}
           {!loading && orders.length === 0 && (
-            <div className="text-center py-20"><p className="text-gray-500">{ge.orders.noOrders}</p></div>
+            <div className="text-center py-20"><p className="text-gray-500">{t.orders.noOrders}</p></div>
           )}
         </div>
       </div>

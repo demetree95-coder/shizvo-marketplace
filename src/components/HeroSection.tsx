@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { motion } from "framer-motion";
 
 export default function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const t = useT();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +31,7 @@ export default function HeroSection() {
           transition={{ duration: 0.6 }}
           className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-6"
         >
-          {ge.hero.title}
+          {t.hero.title}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -38,7 +39,7 @@ export default function HeroSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8"
         >
-          {ge.hero.subtitle}
+          {t.hero.subtitle}
         </motion.p>
         <motion.form
           initial={{ opacity: 0, y: 20 }}
@@ -52,7 +53,7 @@ export default function HeroSection() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={ge.search.placeholder}
+              placeholder={t.search.placeholder}
               className="w-full px-6 py-4 pr-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-gray-400 text-lg focus:outline-none focus:border-primary/50 focus:bg-white/15 transition-all"
             />
             <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-primary hover:bg-primary-dark rounded-xl transition-colors">
@@ -67,10 +68,10 @@ export default function HeroSection() {
           className="flex items-center justify-center gap-4 flex-wrap"
         >
           <Link href="/products" className="btn-primary text-base px-8 py-3.5 rounded-2xl">
-            {ge.hero.cta}
+            {t.hero.cta}
           </Link>
           <Link href="/register" className="px-8 py-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold hover:bg-white/20 transition-all text-base">
-            {ge.hero.registerShop}
+            {t.hero.registerShop}
           </Link>
         </motion.div>
       </div>

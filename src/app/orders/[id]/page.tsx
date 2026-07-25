@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { formatPrice, formatDate, parseJsonArray } from "@/lib/utils";
 
 const statusStyles: Record<string, string> = {
@@ -20,6 +20,7 @@ export default function OrderDetailPage() {
   const params = useParams();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const t = useT();
 
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
@@ -27,14 +28,14 @@ export default function OrderDetailPage() {
     fetch(`/api/orders/${params.id}`).then(r => r.json()).then(d => setOrder(d.order || null)).catch(() => {}).finally(() => setLoading(false));
   }, [user, router, params.id]);
 
-  if (loading) return <div className="min-h-screen pt-20 md:pt-24 bg-gray-50"><div className="container-custom py-8"><p className="text-gray-400 text-center py-20">{ge.common.loading}</p></div></div>;
+  if (loading) return <div className="min-h-screen pt-20 md:pt-24 bg-gray-50"><div className="container-custom py-8"><p className="text-gray-400 text-center py-20">{t.common.loading}</p></div></div>;
 
   if (!order) return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-16 text-center">
         <p className="text-5xl mb-4">🔍</p>
         <h1 className="text-2xl font-bold mb-2">შეკვეთა ვერ მოიძებნა</h1>
-        <button onClick={() => router.push("/orders")} className="btn-primary mt-6">{ge.common.back}</button>
+        <button onClick={() => router.push("/orders")} className="btn-primary mt-6">{t.common.back}</button>
       </div>
     </div>
   );
@@ -42,16 +43,16 @@ export default function OrderDetailPage() {
   return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-8">
-        <Link href="/orders" className="text-sm text-primary hover:underline mb-6 inline-block">&larr; {ge.common.back}</Link>
+        <Link href="/orders" className="text-sm text-primary hover:underline mb-6 inline-block">&larr; {t.common.back}</Link>
 
         <div className="glass-card p-6 mb-6">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div>
-              <p className="text-sm text-gray-500">{ge.orders.orderNumber}</p>
+              <p className="text-sm text-gray-500">{t.orders.orderNumber}</p>
               <p className="font-mono text-xl font-bold">{order.orderNumber}</p>
             </div>
             <span className={`text-sm font-medium px-4 py-1.5 rounded-full ${statusStyles[order.status] || "text-gray-700 bg-gray-50"}`}>
-              {ge.orders.statuses[order.status as keyof typeof ge.orders.statuses] || order.status}
+              {t.orders.statuses[order.status as keyof typeof t.orders.statuses] || order.status}
             </span>
           </div>
           <div className="text-sm text-gray-500 space-y-1">
@@ -63,7 +64,7 @@ export default function OrderDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
             <div className="glass-card p-6">
-              <h3 className="font-semibold mb-4">{ge.orders.items}</h3>
+              <h3 className="font-semibold mb-4">{t.orders.items}</h3>
               <div className="space-y-3">
                 {order.items?.map((item: any) => {
                   const images = parseJsonArray<string>(item.product?.images as any);
@@ -86,17 +87,17 @@ export default function OrderDetailPage() {
 
           <div className="space-y-4">
             <div className="glass-card p-6">
-              <h3 className="font-semibold mb-4">{ge.cart.orderSummary}</h3>
+              <h3 className="font-semibold mb-4">{t.cart.orderSummary}</h3>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-gray-500">{ge.cart.subtotal}</span><span>{formatPrice(order.subtotal)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">{ge.cart.shipping}</span><span>{order.shipping === 0 ? "უფასო" : formatPrice(order.shipping)}</span></div>
-                {order.discount > 0 && <div className="flex justify-between"><span className="text-gray-500">{ge.cart.discount}</span><span className="text-green-600">- {formatPrice(order.discount)}</span></div>}
-                <div className="border-t pt-3 flex justify-between font-bold"><span>{ge.cart.total}</span><span className="text-primary">{formatPrice(order.total)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">{t.cart.subtotal}</span><span>{formatPrice(order.subtotal)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">{t.cart.shipping}</span><span>{order.shipping === 0 ? "უფასო" : formatPrice(order.shipping)}</span></div>
+                {order.discount > 0 && <div className="flex justify-between"><span className="text-gray-500">{t.cart.discount}</span><span className="text-green-600">- {formatPrice(order.discount)}</span></div>}
+                <div className="border-t pt-3 flex justify-between font-bold"><span>{t.cart.total}</span><span className="text-primary">{formatPrice(order.total)}</span></div>
               </div>
             </div>
 
             <div className="glass-card p-6">
-              <h3 className="font-semibold mb-4">{ge.orders.shippingAddress}</h3>
+              <h3 className="font-semibold mb-4">{t.orders.shippingAddress}</h3>
               <div className="text-sm space-y-1 text-gray-600">
                 <p className="font-medium text-gray-800">{order.fullName}</p>
                 <p>{order.phone}</p>

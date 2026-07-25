@@ -315,17 +315,7 @@ export const ge = {
     showMore: "მეტის ნახვა",
     showLess: "ნაკლების ნახვა",
   },
-  notifications: {
-    title: "შეტყობინებები",
-    empty: "შეტყობინებები არ არის",
-    markAllRead: "ყველას წაკითხვა",
-    orderPlaced: "შეკვეთა განთავსებულია",
-    orderShipped: "შეკვეთა გაგზავნილია",
-    orderDelivered: "შეკვეთა მიტანილია",
-    newMessage: "ახალი მესიჯი",
-    subscriptionExpiring: "აბონიმენტის ვადა იწურება",
-    subscriptionExpired: "აბონიმენტის ვადა გაუვიდა",
-  },
+
 };
 
 export type GeKey = keyof typeof ge;

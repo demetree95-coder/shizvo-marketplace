@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { HiOutlineUser, HiOutlinePencilSquare, HiOutlineCamera, HiOutlineCheck, HiOutlineMapPin, HiOutlinePlus, HiOutlineTrash } from "react-icons/hi2";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { useAuthStore } from "@/store/authStore";
 import { api } from "@/lib/api";
 import toast from "react-hot-toast";
@@ -21,6 +21,7 @@ export default function ProfilePage() {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [addressForm, setAddressForm] = useState({ fullName: "", phone: "", street: "", city: "", region: "", zipCode: "" });
+  const t = useT();
 
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
@@ -61,9 +62,9 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error();
       const updated = await res.json();
       setUser(updated);
-      toast.success(ge.profile.saved);
+      toast.success(t.profile.saved);
     } catch {
-      toast.error(ge.common.error);
+      toast.error(t.common.error);
     } finally {
       setSaving(false);
     }
@@ -129,40 +130,40 @@ export default function ProfilePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-gray-500 mb-1 block">{ge.profile.fullName}</label>
+              <label className="text-sm text-gray-500 mb-1 block">{t.profile.fullName}</label>
               <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="input-field w-full" />
             </div>
             <div>
-              <label className="text-sm text-gray-500 mb-1 block">{ge.profile.email}</label>
+              <label className="text-sm text-gray-500 mb-1 block">{t.profile.email}</label>
               <input type="email" value={user.email} disabled className="input-field w-full bg-gray-50 text-gray-400" />
             </div>
             <div>
-              <label className="text-sm text-gray-500 mb-1 block">{ge.profile.phone}</label>
+              <label className="text-sm text-gray-500 mb-1 block">{t.profile.phone}</label>
               <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="input-field w-full" />
             </div>
           </div>
 
           <button onClick={handleSave} disabled={saving} className="btn-primary mt-6">
-            {saving ? ge.common.loading : `${ge.profile.save}`}
+            {saving ? t.common.loading : `${t.profile.save}`}
           </button>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold flex items-center gap-2"><HiOutlineMapPin className="w-5 h-5" /> {ge.profile.addresses}</h2>
+            <h2 className="text-lg font-bold flex items-center gap-2"><HiOutlineMapPin className="w-5 h-5" /> {t.profile.addresses}</h2>
             <button onClick={() => setShowAddressForm(!showAddressForm)} className="btn-secondary text-sm">
-              <HiOutlinePlus className="w-4 h-4" /> {ge.profile.addAddress}
+              <HiOutlinePlus className="w-4 h-4" /> {t.profile.addAddress}
             </button>
           </div>
 
           {showAddressForm && (
             <form onSubmit={handleAddAddress} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl mb-6">
-              <input type="text" placeholder={ge.profile.fullName} value={addressForm.fullName} onChange={(e) => setAddressForm({ ...addressForm, fullName: e.target.value })} required className="input-field" />
-              <input type="tel" placeholder={ge.profile.phone} value={addressForm.phone} onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })} required className="input-field" />
-              <input type="text" placeholder={ge.profile.street} value={addressForm.street} onChange={(e) => setAddressForm({ ...addressForm, street: e.target.value })} required className="input-field md:col-span-2" />
-              <input type="text" placeholder={ge.profile.city} value={addressForm.city} onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })} required className="input-field" />
-              <input type="text" placeholder={ge.profile.region} value={addressForm.region} onChange={(e) => setAddressForm({ ...addressForm, region: e.target.value })} className="input-field" />
-              <input type="text" placeholder={ge.profile.zipCode} value={addressForm.zipCode} onChange={(e) => setAddressForm({ ...addressForm, zipCode: e.target.value })} className="input-field" />
+              <input type="text" placeholder={t.profile.fullName} value={addressForm.fullName} onChange={(e) => setAddressForm({ ...addressForm, fullName: e.target.value })} required className="input-field" />
+              <input type="tel" placeholder={t.profile.phone} value={addressForm.phone} onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })} required className="input-field" />
+              <input type="text" placeholder={t.profile.street} value={addressForm.street} onChange={(e) => setAddressForm({ ...addressForm, street: e.target.value })} required className="input-field md:col-span-2" />
+              <input type="text" placeholder={t.profile.city} value={addressForm.city} onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })} required className="input-field" />
+              <input type="text" placeholder={t.profile.region} value={addressForm.region} onChange={(e) => setAddressForm({ ...addressForm, region: e.target.value })} className="input-field" />
+              <input type="text" placeholder={t.profile.zipCode} value={addressForm.zipCode} onChange={(e) => setAddressForm({ ...addressForm, zipCode: e.target.value })} className="input-field" />
               <div className="md:col-span-2 flex gap-2">
                 <button type="submit" className="btn-primary text-sm"><HiOutlineCheck className="w-4 h-4" /> შენახვა</button>
                 <button type="button" onClick={() => setShowAddressForm(false)} className="btn-secondary text-sm">გაუქმება</button>

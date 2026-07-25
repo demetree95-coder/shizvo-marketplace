@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import ProductCard from "@/components/ProductCard";
 
 export default function WishlistPage() {
@@ -11,6 +11,7 @@ export default function WishlistPage() {
   const router = useRouter();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useT();
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -28,11 +29,11 @@ export default function WishlistPage() {
   return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
       <div className="container-custom py-8">
-        <h1 className="text-2xl font-bold mb-8">{ge.wishlist.title}</h1>
+        <h1 className="text-2xl font-bold mb-8">{t.wishlist.title}</h1>
         {loading ? (
-          <p className="text-gray-400 text-center py-20">{ge.common.loading}</p>
+          <p className="text-gray-400 text-center py-20">{t.common.loading}</p>
         ) : items.length === 0 ? (
-          <p className="text-gray-400 text-center py-20">{ge.wishlist.empty}</p>
+          <p className="text-gray-400 text-center py-20">{t.wishlist.empty}</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {items.map((product: any, i: number) => <ProductCard key={product.id} product={product} index={i} />)}

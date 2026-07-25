@@ -4,12 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiOutlineXMark, HiOutlineTrash, HiOutlineMinus, HiOutlinePlus } from "react-icons/hi2";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { useCartStore } from "@/store/cartStore";
 import { formatPrice, parseJsonArray } from "@/lib/utils";
 
 export default function CartDrawer() {
   const { items, isOpen, setOpen, removeItem, updateQuantity, getTotal, getItemCount } = useCartStore();
+  const t = useT();
 
   return (
     <AnimatePresence>
@@ -30,7 +31,7 @@ export default function CartDrawer() {
             className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col"
           >
             <div className="flex items-center justify-between p-4 border-b border-gray-100">
-              <h2 className="text-lg font-bold">{ge.cart.title} ({getItemCount()})</h2>
+              <h2 className="text-lg font-bold">{t.cart.title} ({getItemCount()})</h2>
               <button onClick={() => setOpen(false)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
                 <HiOutlineXMark className="w-5 h-5" />
               </button>
@@ -39,7 +40,7 @@ export default function CartDrawer() {
               {items.length === 0 ? (
                 <div className="text-center py-16">
                   <p className="text-gray-400 text-lg mb-4">🛒</p>
-                  <p className="text-gray-500">{ge.cart.empty}</p>
+                  <p className="text-gray-500">{t.cart.empty}</p>
                 </div>
               ) : (
                 items.map((item) => {
@@ -80,7 +81,7 @@ export default function CartDrawer() {
             {items.length > 0 && (
               <div className="border-t border-gray-100 p-4 space-y-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">{ge.cart.total}</span>
+                  <span className="text-gray-600">{t.cart.total}</span>
                   <span className="font-bold text-lg text-primary">{formatPrice(getTotal())}</span>
                 </div>
                 <Link
@@ -88,7 +89,7 @@ export default function CartDrawer() {
                   onClick={() => setOpen(false)}
                   className="btn-primary w-full justify-center text-base py-3"
                 >
-                  {ge.cart.checkout}
+                  {t.cart.checkout}
                 </Link>
               </div>
             )}

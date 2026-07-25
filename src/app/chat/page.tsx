@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { ge } from "@/lib/ge";
+import { useT } from "@/lib/locale";
 import { formatDateTime } from "@/lib/utils";
 import { HiOutlinePaperAirplane, HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
 
@@ -18,6 +18,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<any[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const t = useT();
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -59,11 +60,11 @@ export default function ChatPage() {
         <div className="glass-card h-full flex overflow-hidden">
           <div className="w-72 border-r border-gray-100 flex-shrink-0 hidden md:flex flex-col">
             <div className="p-4 border-b border-gray-100">
-              <h2 className="font-bold">{ge.chat.title}</h2>
+              <h2 className="font-bold">{t.chat.title}</h2>
             </div>
             <div className="flex-1 overflow-y-auto">
               {conversations.length === 0 ? (
-                <div className="p-4 text-center text-gray-500 text-sm">{ge.chat.noMessages}</div>
+                <div className="p-4 text-center text-gray-500 text-sm">{t.chat.noMessages}</div>
               ) : (
                 conversations.map((conv) => (
                   <button key={conv.id} onClick={() => openConversation(conv)} className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${activeConv?.id === conv.id ? "bg-primary/5" : ""}`}>
@@ -90,7 +91,7 @@ export default function ChatPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-sm">{activeConv.user?.fullName || activeConv.shop?.name}</p>
-                    <p className="text-xs text-green-500">{ge.chat.online}</p>
+                    <p className="text-xs text-green-500">{t.chat.online}</p>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -105,7 +106,7 @@ export default function ChatPage() {
                   <div ref={messagesEndRef} />
                 </div>
                 <form onSubmit={sendMessage} className="p-4 border-t border-gray-100 flex gap-3">
-                  <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)} placeholder={ge.chat.typeMessage} className="input-field" />
+                  <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)} placeholder={t.chat.typeMessage} className="input-field" />
                   <button type="submit" className="btn-primary px-4"><HiOutlinePaperAirplane className="w-5 h-5" /></button>
                 </form>
               </>
@@ -113,7 +114,7 @@ export default function ChatPage() {
               <div className="flex-1 flex items-center justify-center text-center p-8">
                 <div>
                   <HiOutlineChatBubbleLeftRight className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">{ge.chat.startConversation}</p>
+                  <p className="text-gray-500">{t.chat.startConversation}</p>
                 </div>
               </div>
             )}

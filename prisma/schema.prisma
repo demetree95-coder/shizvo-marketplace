@@ -48,7 +48,6 @@ model User {
   reviews        Review[]
   buyerConversations Conversation[] @relation("UserConversations")
   messages           Message[]
-  notifications      Notification[]
   shop               Shop?
 }
 
@@ -268,19 +267,6 @@ model Message {
 
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  title     String
-  message   String
-  type      String   @default("info")
-  isRead    Boolean  @default(false)
-  link      String?
-  createdAt DateTime @default(now())
-
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Coupon {

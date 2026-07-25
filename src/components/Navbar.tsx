@@ -3,14 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ge } from "@/lib/ge";
+import { useT, useLocale, Locale } from "@/lib/locale";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import {
   HiOutlineShoppingCart, HiOutlineHeart, HiOutlineBars3, HiOutlineXMark,
   HiOutlineUser, HiOutlineArrowRightOnRectangle, HiOutlineSquares2X2,
   HiOutlineChatBubbleLeftRight, HiOutlineClipboardDocumentList,
-  HiOutlineBell, HiOutlineMagnifyingGlass, HiOutlineSun, HiOutlineMoon,
+  HiOutlineMagnifyingGlass, HiOutlineSun, HiOutlineMoon,
+  HiOutlineLanguage,
 } from "react-icons/hi2";
 import { useTheme } from "@/components/ThemeProvider";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,6 +25,30 @@ function ThemeToggle() {
   );
 }
 
+const langLabels: Record<Locale, string> = { ka: "KA", en: "EN", ru: "RU" };
+
+function LangToggle() {
+  const { locale, setLocale } = useLocale();
+  const [open, setOpen] = useState(false);
+  const locales: Locale[] = ["ka", "en", "ru"];
+  return (
+    <div className="relative">
+      <button onClick={() => setOpen(!open)} className="p-2 text-gray-600 hover:text-primary transition-colors text-xs font-bold tracking-wider">
+        {langLabels[locale]}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 py-1 min-w-[80px] z-50" onMouseLeave={() => setOpen(false)}>
+          {locales.map((l) => (
+            <button key={l} onClick={() => { setLocale(l); setOpen(false); }} className={`block w-full text-left px-4 py-2 text-xs font-medium hover:bg-gray-50 transition-colors ${locale === l ? "text-primary" : "text-gray-600"}`}>
+              {l === "ka" ? "ქართული" : l === "en" ? "English" : "Русский"}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
@@ -33,6 +58,7 @@ export default function Navbar() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const itemCount = useCartStore((s) => s.items.reduce((a, b) => a + b.quantity, 0));
+  const t = useT();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -48,9 +74,9 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { href: "/", label: ge.nav.home },
-    { href: "/categories", label: ge.nav.categories },
-    { href: "/shops", label: ge.nav.shops },
+    { href: "/", label: t.nav.home },
+    { href: "/categories", label: t.nav.categories },
+    { href: "/shops", label: t.nav.shops },
   ];
 
   return (
@@ -84,14 +110,15 @@ export default function Navbar() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={ge.search.placeholder}
+                placeholder={t.search.placeholder}
                 className="input-field pl-10 pr-4 py-2 text-sm"
               />
               <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             </form>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <LangToggle />
             <ThemeToggle />
             <Link href="/wishlist" className="relative p-2 text-gray-600 hover:text-primary transition-colors hidden sm:block">
               <HiOutlineHeart className="w-5 h-5" />
@@ -109,8 +136,8 @@ export default function Navbar() {
             {user ? (
               <div className="relative">
                 <button onClick={() => setUserOpen(!userOpen)} className="flex items-center gap-2 p-2 text-gray-600 hover:text-primary transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold">
-                    {user.fullName.charAt(0)}
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold overflow-hidden">
+                    {user.avatar ? <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover" /> : user.fullName.charAt(0)}
                   </div>
                 </button>
                 <AnimatePresence>
@@ -126,26 +153,26 @@ export default function Navbar() {
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
                       <Link href="/profile" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                        <HiOutlineUser className="w-4 h-4" /> {ge.nav.profile}
+                        <HiOutlineUser className="w-4 h-4" /> {t.nav.profile}
                       </Link>
                       {(user.role === "VENDOR" || user.role === "ADMIN") && (
                         <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                          <HiOutlineSquares2X2 className="w-4 h-4" /> {ge.nav.dashboard}
+                          <HiOutlineSquares2X2 className="w-4 h-4" /> {t.nav.dashboard}
                         </Link>
                       )}
                       {user.role === "ADMIN" && (
                         <Link href="/admin" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                          <HiOutlineSquares2X2 className="w-4 h-4" /> {ge.nav.admin}
+                          <HiOutlineSquares2X2 className="w-4 h-4" /> {t.nav.admin}
                         </Link>
                       )}
                       <Link href="/orders" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                        <HiOutlineClipboardDocumentList className="w-4 h-4" /> {ge.nav.orders}
+                        <HiOutlineClipboardDocumentList className="w-4 h-4" /> {t.nav.orders}
                       </Link>
                       <Link href="/chat" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                        <HiOutlineChatBubbleLeftRight className="w-4 h-4" /> {ge.nav.chat}
+                        <HiOutlineChatBubbleLeftRight className="w-4 h-4" /> {t.nav.chat}
                       </Link>
                       <button onClick={logout} className="flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors w-full text-left">
-                        <HiOutlineArrowRightOnRectangle className="w-4 h-4" /> {ge.nav.logout}
+                        <HiOutlineArrowRightOnRectangle className="w-4 h-4" /> {t.nav.logout}
                       </button>
                     </motion.div>
                   )}
@@ -153,8 +180,8 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="hidden sm:flex items-center gap-2">
-                <Link href="/login" className="btn-secondary text-sm py-2 px-4">{ge.nav.login}</Link>
-                <Link href="/register" className="btn-primary text-sm py-2 px-4">{ge.nav.register}</Link>
+                <Link href="/login" className="btn-secondary text-sm py-2 px-4">{t.nav.login}</Link>
+                <Link href="/register" className="btn-primary text-sm py-2 px-4">{t.nav.register}</Link>
               </div>
             )}
 
@@ -178,7 +205,7 @@ export default function Navbar() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={ge.search.placeholder}
+                    placeholder={t.search.placeholder}
                     className="input-field pl-10 pr-4 py-2.5 text-sm"
                   />
                   <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -191,8 +218,8 @@ export default function Navbar() {
                 <div className="border-t border-gray-100 pt-2 mt-2">
                   {!user && (
                     <div className="flex gap-2 px-3 pt-2">
-                      <Link href="/login" className="btn-secondary text-sm py-2 px-4 flex-1 text-center">{ge.nav.login}</Link>
-                      <Link href="/register" className="btn-primary text-sm py-2 px-4 flex-1 text-center">{ge.nav.register}</Link>
+                      <Link href="/login" className="btn-secondary text-sm py-2 px-4 flex-1 text-center">{t.nav.login}</Link>
+                      <Link href="/register" className="btn-primary text-sm py-2 px-4 flex-1 text-center">{t.nav.register}</Link>
                     </div>
                   )}
                 </div>

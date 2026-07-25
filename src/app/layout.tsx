@@ -7,6 +7,7 @@ import CartDrawer from "@/components/CartDrawer";
 import ChatWidget from "@/components/ChatWidget";
 import AuthProvider from "@/components/AuthProvider";
 import ThemeProvider from "@/components/ThemeProvider";
+import { LocaleProvider } from "@/lib/locale";
 
 export const metadata: Metadata = {
   title: "მარკეტი - ქართული ონლაინ მარკეტპლეისი",
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen flex flex-col">
         <ThemeProvider>
+        <LocaleProvider>
         <AuthProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
@@ -32,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <CartDrawer />
           <ChatWidget />
         </AuthProvider>
+        </LocaleProvider>
         </ThemeProvider>
         <Toaster
           position="top-right"
