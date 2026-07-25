@@ -49,8 +49,8 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: ge.nav.home },
-    { href: "/products", label: ge.nav.categories },
-    { href: "/categories", label: ge.nav.shops },
+    { href: "/categories", label: ge.nav.categories },
+    { href: "/shops", label: ge.nav.shops },
   ];
 
   return (

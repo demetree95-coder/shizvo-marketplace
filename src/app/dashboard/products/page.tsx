@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -18,7 +18,9 @@ export default function DashboardProductsPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({ name: "", description: "", price: "", discountPrice: "", stock: "0", sku: "", categoryId: "", images: "", features: "", deliveryInfo: "" });
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (!user || user.role === "USER") { router.push("/"); return; }
@@ -42,8 +44,27 @@ export default function DashboardProductsPage() {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const base64 = ev.target?.result as string;
+        setUploadedImages(prev => [...prev, base64]);
+      };
+      reader.readAsDataURL(file);
+    });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeUploadedImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const allImages = [...uploadedImages, ...(form.images ? form.images.split(",").map(s => s.trim()).filter(Boolean) : [])];
     try {
       const res = await fetch("/api/shop/products", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -52,7 +73,7 @@ export default function DashboardProductsPage() {
           price: parseFloat(form.price),
           discountPrice: form.discountPrice ? parseFloat(form.discountPrice) : null,
           stock: parseInt(form.stock),
-          images: form.images ? form.images.split(",").map(s => s.trim()).filter(Boolean) : [],
+          images: allImages,
           features: form.features ? form.features.split(",").map(s => s.trim()).filter(Boolean) : [],
         }),
       });
@@ -61,6 +82,7 @@ export default function DashboardProductsPage() {
       toast.success(ge.dashboard.addProduct);
       setShowAddForm(false);
       setForm({ name: "", description: "", price: "", discountPrice: "", stock: "0", sku: "", categoryId: "", images: "", features: "", deliveryInfo: "" });
+      setUploadedImages([]);
       fetchData();
     } catch (err: any) {
       toast.error(err.message);
@@ -96,7 +118,21 @@ export default function DashboardProductsPage() {
                     <option value="">აირჩიეთ კატეგორია</option>
                     {categories.map((cat) => (<option key={cat.id} value={cat.id}>{cat.name}</option>))}
                   </select>
-                  <input className="input-field" placeholder="სურათების URL-ები (მძიმით გამოყოფილი)" value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} />
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">სურათები</label>
+                    <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+                    {uploadedImages.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {uploadedImages.map((img, i) => (
+                          <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden group">
+                            <Image src={img} alt={`Upload ${i}`} fill className="object-cover" />
+                            <button type="button" onClick={() => removeUploadedImage(i)} className="absolute top-0 right-0 bg-red-500 text-white rounded-bl-lg p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><HiOutlineXMark className="w-4 h-4" /></button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <input className="input-field mt-2" placeholder="ან URL-ები (მძიმით გამოყოფილი, თუ ატვირთვა არ გინდათ)" value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} />
+                  </div>
                   <input className="input-field" placeholder="მახასიათებლები (მძიმით გამოყოფილი)" value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} />
                   <textarea className="input-field md:col-span-2" rows={2} placeholder="მიწოდების ინფორმაცია" value={form.deliveryInfo} onChange={(e) => setForm({ ...form, deliveryInfo: e.target.value })} />
                   <div className="md:col-span-2 flex gap-3">
