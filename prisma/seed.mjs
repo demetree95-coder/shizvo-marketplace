@@ -110,23 +110,25 @@ async function run() {
 
   const insertProduct = `INSERT INTO Product (id, name, slug, description, price, discountPrice, stock, images, features, deliveryInfo, sku, isActive, isFeatured, rating, reviewCount, soldCount, shopId, categoryId, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  for (const p of products) {
+  const productImages = [
+    "https://images.unsplash.com/photo-1758398013809-fc909955bd76?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1569322977266-acff659212fd?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1575718120842-54e388d8cc6f?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1511025998370-7d59f82e9c8f?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1544244015-9c72fd9c866d?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-oZEuOtv8KA0?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1741250782029-2770cfaf666c?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1511556820780-d912e42b4980?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-XlKAu2sSpic?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-i8OruGmFXtw?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1646239646963-b0b9be56d6b5?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-Kf6UgCx5mb8?w=400&h=400&fit=crop",
+  ];
+
+  for (let i = 0; i < products.length; i++) {
     const id = uid();
-    const imageUrls = [
-      "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1434389677669-e08b4cda3a40?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=400&fit=crop",
-    ];
-    const images = JSON.stringify([imageUrls[products.indexOf(p) % imageUrls.length]]);
+    const p = products[i];
+    const images = JSON.stringify([productImages[i]]);
     const features = JSON.stringify(["მაღალი ხარისხი", "ორიგინალი პროდუქტი", "სწრაფი მიწოდება", "გარანტია"]);
     const desc = `${p.name} - მაღალი ხარისხის პროდუქტი საუკეთესო ფასად. შეიძინეთ მარკეტზე!`;
     const sku = `SKU-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
