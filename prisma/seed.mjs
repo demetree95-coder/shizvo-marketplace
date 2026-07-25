@@ -6,13 +6,8 @@ import { fileURLToPath } from "url";
 import "dotenv/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TURSO_DB_URL = process.env.TURSO_DB_URL;
-const TURSO_AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN;
 
 function getClient() {
-  if (TURSO_DB_URL) {
-    return createClient({ url: TURSO_DB_URL, authToken: TURSO_AUTH_TOKEN });
-  }
   const dbPath = path.resolve(__dirname, "..", "dev.db");
   return createClient({ url: `file:///${dbPath.replace(/\\/g, "/")}` });
 }
@@ -22,13 +17,18 @@ const db = getClient();
 function uid() { return crypto.randomBytes(12).toString("hex"); }
 
 async function run() {
+  const tables = ["Coupon", "Review", "OrderItem", "Order", "WishlistItem", "Wishlist", "CartItem", "Cart", "Message", "Conversation", "Notification", "Address", "Product", "Shop", "Category", "User"];
+  for (const t of tables) {
+    try { await db.execute({ sql: `DELETE FROM \"${t}\"`, args: [] }); } catch {}
+  }
+
   const now = new Date().toISOString();
   const adminPassword = await bcrypt.hash("demetre!2$45", 12);
   const vendorPassword = await bcrypt.hash("password123", 12);
 
   const adminId = uid();
   await db.execute({
-    sql: "INSERT OR IGNORE INTO User (id, email, password, fullName, phone, role, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    sql: "INSERT INTO User (id, email, password, fullName, phone, role, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     args: [adminId, "demetree95@gmail.com", adminPassword, "ადმინი", "599111111", "ADMIN", now, now],
   });
 
@@ -42,7 +42,7 @@ async function run() {
   for (const v of vendorData) {
     const id = uid();
     await db.execute({
-      sql: "INSERT OR IGNORE INTO User (id, email, password, fullName, phone, role, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      sql: "INSERT INTO User (id, email, password, fullName, phone, role, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       args: [id, v.email, vendorPassword, v.name, v.phone, "VENDOR", now, now],
     });
     vendorIds.push(id);
@@ -50,7 +50,7 @@ async function run() {
 
   const userId = uid();
   await db.execute({
-    sql: "INSERT OR IGNORE INTO User (id, email, password, fullName, phone, role, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    sql: "INSERT INTO User (id, email, password, fullName, phone, role, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     args: [userId, "user@markaz.ge", vendorPassword, "მომხმარებელი", "599999999", "USER", now, now],
   });
 
@@ -69,7 +69,7 @@ async function run() {
   for (const c of cats) {
     const id = uid();
     await db.execute({
-      sql: 'INSERT OR IGNORE INTO Category (id, name, slug, icon, "order", createdAt) VALUES (?, ?, ?, ?, ?, ?)',
+      sql: 'INSERT INTO Category (id, name, slug, icon, "order", createdAt) VALUES (?, ?, ?, ?, ?, ?)',
       args: [id, c.name, c.slug, c.icon, c.order, now],
     });
     catIds.push(id);
@@ -87,7 +87,7 @@ async function run() {
   for (const s of shopData) {
     const id = uid();
     await db.execute({
-      sql: "INSERT OR IGNORE INTO Shop (id, name, slug, description, isFeatured, userId, subscriptionPlan, subscriptionEnd, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      sql: "INSERT INTO Shop (id, name, slug, description, isFeatured, userId, subscriptionPlan, subscriptionEnd, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       args: [id, s.name, s.slug, s.desc, s.featured, s.userId, "PREMIUM", yearEnd, now, now],
     });
     shopIds.push(id);
@@ -112,13 +112,27 @@ async function run() {
 
   for (const p of products) {
     const id = uid();
-    const images = JSON.stringify([`https://picsum.photos/seed/${p.slug}/400/400`]);
+    const imageUrls = [
+      "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1434389677669-e08b4cda3a40?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=400&fit=crop",
+    ];
+    const images = JSON.stringify([imageUrls[products.indexOf(p) % imageUrls.length]]);
     const features = JSON.stringify(["მაღალი ხარისხი", "ორიგინალი პროდუქტი", "სწრაფი მიწოდება", "გარანტია"]);
     const desc = `${p.name} - მაღალი ხარისხის პროდუქტი საუკეთესო ფასად. შეიძინეთ მარკეტზე!`;
     const sku = `SKU-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
     await db.execute({
       sql: insertProduct,
-      args: [id, p.name, p.slug, desc, p.price, p.discount || null, p.stock, images, features, "მიწოდება მთელი საქართველოს მასშტაბით 2-3 დღეში", sku, Math.random() > 0.5 ? 1 : 0, p.rating, p.reviews, p.sold, shopIds[p.shop], catIds[p.cat], now, now],
+      args: [id, p.name, p.slug, desc, p.price, p.discount || null, p.stock, images, features, "მიწოდება მთელი საქართველოს მასშტაბით 2-3 დღეში", sku, 1, p.rating, p.reviews, p.sold, shopIds[p.shop], catIds[p.cat], now, now],
     });
   }
 

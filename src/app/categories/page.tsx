@@ -20,7 +20,7 @@ export default function CategoriesPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {categories.map((cat) => (
-              <Link key={cat.id} href={`/products?categoryId=${cat.id}`} className="glass-card p-6 text-center hover:shadow-lg transition-shadow group">
+              <Link key={cat.id} href={`/products?category=${cat.id}`} className="glass-card p-6 text-center hover:shadow-lg transition-shadow group">
                 <div className="text-5xl mb-3">{cat.icon || "📦"}</div>
                 <h3 className="font-semibold group-hover:text-primary transition-colors">{cat.name}</h3>
                 {cat._count?.products && (
