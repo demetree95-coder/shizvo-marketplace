@@ -27,7 +27,7 @@ export default function RegisterPage() {
     try {
       await register({ email, password, fullName, phone: phone || undefined });
       toast.success(ge.auth.success);
-      router.push("/");
+      router.push("/dashboard/settings");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : ge.auth.error;
       toast.error(msg);
