@@ -10,9 +10,19 @@ import {
   HiOutlineShoppingCart, HiOutlineHeart, HiOutlineBars3, HiOutlineXMark,
   HiOutlineUser, HiOutlineArrowRightOnRectangle, HiOutlineSquares2X2,
   HiOutlineChatBubbleLeftRight, HiOutlineClipboardDocumentList,
-  HiOutlineBell, HiOutlineMagnifyingGlass,
+  HiOutlineBell, HiOutlineMagnifyingGlass, HiOutlineSun, HiOutlineMoon,
 } from "react-icons/hi2";
+import { useTheme } from "@/components/ThemeProvider";
 import { motion, AnimatePresence } from "framer-motion";
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <button onClick={toggle} className="p-2 text-gray-600 hover:text-primary transition-colors" title={theme === "light" ? "ღამის რეჟიმი" : "დღის რეჟიმი"}>
+      {theme === "light" ? <HiOutlineMoon className="w-5 h-5" /> : <HiOutlineSun className="w-5 h-5" />}
+    </button>
+  );
+}
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -82,6 +92,7 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link href="/wishlist" className="relative p-2 text-gray-600 hover:text-primary transition-colors hidden sm:block">
               <HiOutlineHeart className="w-5 h-5" />
             </Link>
