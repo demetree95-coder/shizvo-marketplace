@@ -16,19 +16,19 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     const stored = localStorage.getItem("theme") as Theme | null;
-    if (stored) setTheme(stored);
+    if (stored === "dark") {
+      setTheme("dark");
+      document.documentElement.classList.add("dark");
+    }
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (!mounted) return;
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("theme", theme);
-  }, [theme, mounted]);
-
-  const toggle = () => setTheme(t => t === "light" ? "dark" : "light");
-
-  if (!mounted) return <>{children}</>;
+  const toggle = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+    localStorage.setItem("theme", next);
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggle }}>
