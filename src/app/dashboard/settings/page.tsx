@@ -21,7 +21,8 @@ export default function DashboardSettingsPage() {
 
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
-    fetch("/api/auth/me").then(r => r.json()).then(data => {
+    const token = localStorage.getItem("token");
+    fetch("/api/auth/me", { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then(r => r.json()).then(data => {
       if (data.shop) { setHasShop(true); setShop(data.shop); setForm({ name: data.shop.name, description: data.shop.description || "", logo: data.shop.logo || "", banner: data.shop.banner || "", contactEmail: data.shop.contactEmail || "", contactPhone: data.shop.contactPhone || "", website: data.shop.website || "" }); }
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user, router]);
@@ -46,11 +47,18 @@ export default function DashboardSettingsPage() {
     uploadFile(file, field);
   };
 
+  const authHeaders = (): Record<string, string> => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    return headers;
+  };
+
   const createShop = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await fetch("/api/shop/create", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST", headers: authHeaders(),
         body: JSON.stringify(form),
       });
       const data = await res.json();
@@ -66,7 +74,7 @@ export default function DashboardSettingsPage() {
     e.preventDefault();
     try {
       const res = await fetch("/api/shop/update", {
-        method: "PUT", headers: { "Content-Type": "application/json" },
+        method: "PUT", headers: authHeaders(),
         body: JSON.stringify(form),
       });
       const data = await res.json();
