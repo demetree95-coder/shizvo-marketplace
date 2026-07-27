@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useT } from "@/lib/locale";
-import { FiFacebook, FiInstagram, FiYoutube, FiMessageCircle } from "react-icons/fi";
+
 
 export default function Footer() {
   const t = useT();
@@ -12,20 +12,7 @@ export default function Footer() {
           <div>
             <h3 className="text-2xl font-extrabold gradient-text mb-4">მარკეტი</h3>
             <p className="text-gray-400 text-sm leading-relaxed">{t.footer.description}</p>
-            <div className="flex gap-3 mt-6">
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors">
-                <FiFacebook className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors">
-                <FiInstagram className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors">
-                <FiYoutube className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors">
-                <FiMessageCircle className="w-4 h-4" />
-              </a>
-            </div>
+
           </div>
           <div>
             <h4 className="font-semibold text-lg mb-4">{t.footer.quickLinks}</h4>

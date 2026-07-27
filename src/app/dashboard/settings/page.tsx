@@ -11,7 +11,7 @@ export default function DashboardSettingsPage() {
   const router = useRouter();
   const [shop, setShop] = useState<any>(null);
   const [hasShop, setHasShop] = useState(false);
-  const [form, setForm] = useState({ name: "", description: "", logo: "", banner: "", contactEmail: "", contactPhone: "", facebook: "", instagram: "", tiktok: "", youtube: "", website: "" });
+  const [form, setForm] = useState({ name: "", description: "", logo: "", banner: "", contactEmail: "", contactPhone: "", website: "" });
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -21,7 +21,7 @@ export default function DashboardSettingsPage() {
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
     fetch("/api/auth/me").then(r => r.json()).then(data => {
-      if (data.shop) { setHasShop(true); setShop(data.shop); setForm({ name: data.shop.name, description: data.shop.description || "", logo: data.shop.logo || "", banner: data.shop.banner || "", contactEmail: data.shop.contactEmail || "", contactPhone: data.shop.contactPhone || "", facebook: data.shop.facebook || "", instagram: data.shop.instagram || "", tiktok: data.shop.tiktok || "", youtube: data.shop.youtube || "", website: data.shop.website || "" }); }
+      if (data.shop) { setHasShop(true); setShop(data.shop); setForm({ name: data.shop.name, description: data.shop.description || "", logo: data.shop.logo || "", banner: data.shop.banner || "", contactEmail: data.shop.contactEmail || "", contactPhone: data.shop.contactPhone || "", website: data.shop.website || "" }); }
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user, router]);
 
@@ -132,12 +132,7 @@ export default function DashboardSettingsPage() {
 
               <input className="input-field" placeholder="ელ. ფოსტა" value={form.contactEmail} onChange={(e) => setForm({ ...form, contactEmail: e.target.value })} />
               <input className="input-field" placeholder="ტელეფონი" value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} />
-              <div className="grid grid-cols-2 gap-4">
-                <input className="input-field" placeholder="Facebook" value={form.facebook} onChange={(e) => setForm({ ...form, facebook: e.target.value })} />
-                <input className="input-field" placeholder="Instagram" value={form.instagram} onChange={(e) => setForm({ ...form, instagram: e.target.value })} />
-                <input className="input-field" placeholder="TikTok" value={form.tiktok} onChange={(e) => setForm({ ...form, tiktok: e.target.value })} />
-                <input className="input-field" placeholder="YouTube" value={form.youtube} onChange={(e) => setForm({ ...form, youtube: e.target.value })} />
-              </div>
+
               <input className="input-field" placeholder="ვებ-გვერდი" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} />
               <button type="submit" className="btn-primary">{hasShop ? t.common.save : t.shop.create}</button>
             </form>

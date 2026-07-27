@@ -65,7 +65,7 @@ export default function ShopDetailPage() {
               <button onClick={startChat} className="btn-secondary shrink-0"><HiOutlineChatBubbleLeftRight className="w-4 h-4" /> {t.chat.title}</button>
             )}
           </div>
-          {(shop.contactEmail || shop.contactPhone || shop.website || shop.facebook || shop.instagram) && (
+          {(shop.contactEmail || shop.contactPhone || shop.website) && (
             <div className="border-t border-gray-100 mt-6 pt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
               {shop.contactEmail && <div className="flex items-center gap-2 text-sm text-gray-500"><HiOutlineEnvelope className="w-4 h-4" />{shop.contactEmail}</div>}
               {shop.contactPhone && <div className="flex items-center gap-2 text-sm text-gray-500"><HiOutlinePhone className="w-4 h-4" />{shop.contactPhone}</div>}
