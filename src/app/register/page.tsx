@@ -140,7 +140,7 @@ export default function RegisterPage() {
     try {
       await register({ email, password, fullName, phone: phone || undefined, captchaToken: captchaToken || undefined });
       toast.success(t.auth.success);
-      router.push("/dashboard/settings");
+      router.push("/");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : t.auth.error;
       toast.error(msg);

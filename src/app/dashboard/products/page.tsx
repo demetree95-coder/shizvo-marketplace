@@ -10,6 +10,7 @@ import { HiOutlinePlus, HiOutlinePencilSquare, HiOutlineTrash, HiOutlineXMark, H
 import { useT } from "@/lib/locale";
 import { useAuthStore } from "@/store/authStore";
 import { formatPrice, parseJsonArray } from "@/lib/utils";
+import { uploadFileToStorage } from "@/lib/firebase";
 
 export default function DashboardProductsPage() {
   const { user } = useAuthStore();
@@ -49,16 +50,13 @@ export default function DashboardProductsPage() {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || !user) return;
     setUploadingImages(true);
     try {
       await Promise.all(Array.from(files).map(async (file) => {
-        const fd = new FormData();
-        fd.append("file", file);
-        const res = await fetch("/api/upload", { method: "POST", body: fd });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message);
-        setUploadedImages(prev => [...prev, data.url]);
+        const ext = file.name.split(".").pop() || "jpg";
+        const url = await uploadFileToStorage(file, `products/${user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`);
+        setUploadedImages(prev => [...prev, url]);
       }));
       toast.success("სურათები აიტვირთა");
     } catch (err: any) {

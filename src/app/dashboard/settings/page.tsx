@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useT } from "@/lib/locale";
 import { useAuthStore } from "@/store/authStore";
+import { uploadFileToStorage } from "@/lib/firebase";
 
 export default function DashboardSettingsPage() {
   const { user, setUser } = useAuthStore();
@@ -28,12 +29,9 @@ export default function DashboardSettingsPage() {
   const uploadFile = async (file: File, field: "logo" | "banner") => {
     setUploading(field);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      setForm((prev) => ({ ...prev, [field]: data.url }));
+      const ext = file.name.split(".").pop() || "jpg";
+      const url = await uploadFileToStorage(file, `shops/${user!.id}/${field}_${Date.now()}.${ext}`);
+      setForm((prev) => ({ ...prev, [field]: url }));
       toast.success(`${field === "logo" ? "ლოგო" : "ბანერი"} აიტვირთა`);
     } catch (err: any) {
       toast.error(err.message);
