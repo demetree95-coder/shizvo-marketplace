@@ -45,18 +45,28 @@ export default function DashboardProductsPage() {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploadingImages, setUploadingImages] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const base64 = ev.target?.result as string;
-        setUploadedImages(prev => [...prev, base64]);
-      };
-      reader.readAsDataURL(file);
-    });
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    setUploadingImages(true);
+    try {
+      await Promise.all(Array.from(files).map(async (file) => {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message);
+        setUploadedImages(prev => [...prev, data.url]);
+      }));
+      toast.success("სურათები აიტვირთა");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setUploadingImages(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const removeUploadedImage = (index: number) => {
@@ -121,7 +131,8 @@ export default function DashboardProductsPage() {
                   </select>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">სურათები</label>
-                    <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+                    <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} disabled={uploadingImages} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 disabled:opacity-50" />
+                    {uploadingImages && <p className="text-xs text-primary mt-1">იტვირთება...</p>}
                     {uploadedImages.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {uploadedImages.map((img, i) => (

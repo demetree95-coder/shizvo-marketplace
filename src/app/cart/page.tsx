@@ -155,39 +155,13 @@ export default function CartPage() {
   const [paymentModal, setPaymentModal] = useState<"card" | "paypal" | null>(null);
   const [processing, setProcessing] = useState(false);
   const [completedOrders, setCompletedOrders] = useState<any[]>([]);
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
-  const [couponLoading, setCouponLoading] = useState(false);
-  const [couponError, setCouponError] = useState("");
   const t = useT();
 
   if (!user) { router.push("/login"); return null; }
 
   const total = getTotal();
   const shipping = total > 200 ? 0 : 15;
-  const discountAmount = appliedCoupon ? (appliedCoupon.type === "percentage" ? Math.round(total * appliedCoupon.discount / 100 * 100) / 100 : appliedCoupon.discount) : 0;
-  const finalTotal = Math.max(0, total + shipping - discountAmount);
-
-  const applyCoupon = async () => {
-    if (!couponCode.trim()) return;
-    setCouponLoading(true);
-    setCouponError("");
-    try {
-      const res = await fetch("/api/coupons/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: couponCode.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setCouponError(data.message); setAppliedCoupon(null); return; }
-      setAppliedCoupon(data.coupon);
-      toast.success(`კუპონი გამოყენებულია! ${data.coupon.discount}% ფასდაკლება`);
-    } catch {
-      setCouponError("შეცდომა კუპონის შემოწმებისას");
-    } finally {
-      setCouponLoading(false);
-    }
-  };
+  const finalTotal = total + shipping;
 
   const createOrders = async () => {
     setProcessing(true);
@@ -204,7 +178,6 @@ export default function CartPage() {
             address: { fullName: address.fullName, phone: address.phone, street: address.street, city: address.city },
             note: null,
             shipping: total > 200 ? 0 : 15,
-            couponCode: appliedCoupon ? appliedCoupon.code : null,
           }),
         });
         if (!res.ok) throw new Error("Order creation failed");
@@ -212,8 +185,6 @@ export default function CartPage() {
         created.push(data.order);
       }
       clearCart();
-      setAppliedCoupon(null);
-      setCouponCode("");
       setCompletedOrders(created);
       toast.success(t.cart.paymentSuccess);
     } catch {
@@ -358,23 +329,9 @@ export default function CartPage() {
           <div className="glass-card p-6 h-fit">
             <h3 className="font-semibold mb-4">{t.cart.orderSummary}</h3>
 
-            <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-              <div className="flex gap-2">
-                <input type="text" value={couponCode} onChange={e => { setCouponCode(e.target.value.toUpperCase()); setAppliedCoupon(null); setCouponError(""); }} placeholder={t.cart.coupon} disabled={!!appliedCoupon} className="input-field text-sm flex-1 uppercase" />
-                {appliedCoupon ? (
-                  <button onClick={() => { setAppliedCoupon(null); setCouponCode(""); setCouponError(""); }} className="btn-secondary text-sm px-3 whitespace-nowrap">{t.common.cancel}</button>
-                ) : (
-                  <button onClick={applyCoupon} disabled={couponLoading || !couponCode.trim()} className="btn-primary text-sm px-3 whitespace-nowrap">{couponLoading ? "..." : t.cart.applyCoupon}</button>
-                )}
-              </div>
-              {couponError && <p className="text-xs text-red-500 mt-1">{couponError}</p>}
-              {appliedCoupon && <p className="text-xs text-green-600 mt-1">✅ {appliedCoupon.discount}% {t.cart.discount}</p>}
-            </div>
-
             <div className="space-y-3 text-sm">
               <div className="flex justify-between"><span className="text-gray-500">{t.cart.subtotal}</span><span>{formatPrice(total)}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">{t.cart.shipping}</span><span>{shipping === 0 ? "უფასო" : formatPrice(shipping)}</span></div>
-              {discountAmount > 0 && <div className="flex justify-between"><span className="text-gray-500">{t.cart.discount}</span><span className="text-green-600">-{formatPrice(discountAmount)}</span></div>}
               <div className="border-t pt-3 flex justify-between font-bold"><span>{t.cart.total}</span><span className="text-primary">{formatPrice(finalTotal)}</span></div>
             </div>
             {total > 200 && <p className="text-xs text-green-600 mt-2">✅ უფასო მიწოდება 200₾-ზე მეტი შეკვეთებისთვის</p>}

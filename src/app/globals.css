@@ -235,6 +235,10 @@
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+  .recaptcha-container { min-height: 78px; }
+  .recaptcha-container iframe { z-index: 1; }
+  .grecaptcha-badge { z-index: 100 !important; }
+
   .skeleton {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;

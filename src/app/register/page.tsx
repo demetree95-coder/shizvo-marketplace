@@ -209,7 +209,7 @@ export default function RegisterPage() {
           )}
 
           {RECAPTCHA_SITE_KEY && (
-            <div className="flex justify-center">
+            <div className="flex justify-center recaptcha-container">
               <div ref={recaptchaRef} />
             </div>
           )}
