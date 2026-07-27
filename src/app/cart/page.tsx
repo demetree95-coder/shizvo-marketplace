@@ -255,7 +255,7 @@ export default function CartPage() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
                 {items.map((item) => {
                   const images = parseJsonArray<string>(item.product.images as any);
-                  const price = item.product.discountPrice || item.product.price;
+                  const price = item.product.price;
                   return (
                     <div key={item.product.id} className="glass-card p-4 flex gap-4">
                       <div className="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">

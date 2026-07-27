@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { HiOutlineHeart, HiOutlineShoppingCart, HiStar } from "react-icons/hi2";
 import { useT } from "@/lib/locale";
 import { useCartStore } from "@/store/cartStore";
-import { formatPrice, calculateDiscount, truncate, parseJsonArray } from "@/lib/utils";
+import { formatPrice, truncate, parseJsonArray } from "@/lib/utils";
 import { ProductType } from "@/types";
 import toast from "react-hot-toast";
 
@@ -18,7 +18,6 @@ interface Props {
 export default function ProductCard({ product, index = 0 }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const images = parseJsonArray<string>(product.images as any);
-  const discount = product.discountPrice ? calculateDiscount(product.price, product.discountPrice) : 0;
   const t = useT();
 
   return (
@@ -38,9 +37,6 @@ export default function ProductCard({ product, index = 0 }: Props) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">No Image</div>
-        )}
-        {discount > 0 && (
-          <span className="absolute top-3 left-3 badge badge-red">{discount}% {t.products.discount}</span>
         )}
         {product.stock <= 0 && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -68,16 +64,7 @@ export default function ProductCard({ product, index = 0 }: Props) {
           <span className="text-xs text-gray-400">({product.reviewCount})</span>
         </div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {product.discountPrice ? (
-              <>
-                <span className="font-bold text-primary">{formatPrice(product.discountPrice)}</span>
-                <span className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</span>
-              </>
-            ) : (
-              <span className="font-bold text-primary">{formatPrice(product.price)}</span>
-            )}
-          </div>
+          <span className="font-bold text-primary">{formatPrice(product.price)}</span>
           <button
             onClick={(e) => { e.preventDefault(); addItem(product); toast.success("დაემატა კალათაში!"); }}
             className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary hover:text-white transition-all"

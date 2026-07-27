@@ -45,7 +45,7 @@ export default function CartDrawer() {
               ) : (
                 items.map((item) => {
                   const images = parseJsonArray<string>(item.product.images as any);
-                  const price = item.product.discountPrice || item.product.price;
+                  const price = item.product.price;
                   return (
                     <div key={item.product.id} className="flex gap-3 glass-card p-3">
                       <div className="w-20 h-20 rounded-xl bg-gray-50 overflow-hidden flex-shrink-0">

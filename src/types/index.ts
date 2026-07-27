@@ -17,10 +17,6 @@ export interface ShopType {
   banner: string | null;
   contactEmail: string | null;
   contactPhone: string | null;
-  facebook: string | null;
-  instagram: string | null;
-  tiktok: string | null;
-  youtube: string | null;
   website: string | null;
   isFeatured: boolean;
   isBlocked: boolean;
@@ -38,7 +34,6 @@ export interface ProductType {
   slug: string;
   description: string | null;
   price: number;
-  discountPrice: number | null;
   stock: number;
   sku: string | null;
   images: string[];

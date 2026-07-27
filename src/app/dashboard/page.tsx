@@ -19,10 +19,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
-    if (user.role === "USER") { router.push("/"); return; }
   }, [user, router]);
 
-  if (!user || user.role === "USER") return null;
+  if (!user) return null;
 
   const cards = [
     { icon: HiOutlineCurrencyDollar, label: t.dashboard.todaySales, value: formatPrice(stats.todaySales), color: "from-green-500 to-emerald-600" },

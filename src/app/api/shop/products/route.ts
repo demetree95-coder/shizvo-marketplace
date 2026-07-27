@@ -36,8 +36,7 @@ export async function POST(request: NextRequest) {
     const product = await prisma.product.create({
       data: {
         shopId: shop.id, name: data.name, slug, description: data.description || null,
-        price: parseFloat(data.price), discountPrice: data.discountPrice ? parseFloat(data.discountPrice) : null,
-        stock: parseInt(data.stock) || 0, sku: data.sku || null,
+        price: parseFloat(data.price), stock: parseInt(data.stock) || 0, sku: data.sku || null,
         images: JSON.stringify(data.images || []), video: data.video || null,
         features: JSON.stringify(data.features || []), deliveryInfo: data.deliveryInfo || null,
         categoryId: data.categoryId,

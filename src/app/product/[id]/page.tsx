@@ -8,7 +8,7 @@ import { HiOutlineShoppingCart, HiOutlineHeart, HiStar, HiOutlineMinus, HiOutlin
 import { useT } from "@/lib/locale";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
-import { formatPrice, calculateDiscount, parseJsonArray } from "@/lib/utils";
+import { formatPrice, parseJsonArray } from "@/lib/utils";
 import ReviewCard from "@/components/ReviewCard";
 import toast from "react-hot-toast";
 
@@ -58,7 +58,6 @@ export default function ProductDetailPage() {
   if (!product) return <div className="min-h-screen pt-24 flex items-center justify-center"><p className="text-gray-500">{t.products.noProducts}</p></div>;
 
   const images = product.images?.length > 0 ? product.images : ["/placeholder.svg"];
-  const discount = product.discountPrice ? calculateDiscount(product.price, product.discountPrice) : 0;
 
   return (
     <div className="min-h-screen pt-20 md:pt-24 bg-gray-50">
@@ -94,15 +93,7 @@ export default function ProductDetailPage() {
                 <span className="text-gray-500">{product.soldCount} გაყიდული</span>
               </div>
               <div className="flex items-center gap-3 mb-6">
-                {product.discountPrice ? (
-                  <>
-                    <span className="text-3xl font-bold text-primary">{formatPrice(product.discountPrice)}</span>
-                    <span className="text-lg text-gray-400 line-through">{formatPrice(product.price)}</span>
-                    <span className="badge badge-red">{discount}%</span>
-                  </>
-                ) : (
-                  <span className="text-3xl font-bold text-primary">{formatPrice(product.price)}</span>
-                )}
+                <span className="text-3xl font-bold text-primary">{formatPrice(product.price)}</span>
               </div>
               <p className="text-sm text-gray-500 mb-6 leading-relaxed">{product.description}</p>
               <div className="flex items-center gap-4 mb-6">

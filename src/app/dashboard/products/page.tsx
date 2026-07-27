@@ -20,12 +20,12 @@ export default function DashboardProductsPage() {
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState({ name: "", description: "", price: "", discountPrice: "", stock: "0", sku: "", categoryId: "", images: "", features: "", deliveryInfo: "" });
+  const [form, setForm] = useState({ name: "", description: "", price: "", stock: "0", sku: "", categoryId: "", images: "", features: "", deliveryInfo: "" });
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const t = useT();
 
   useEffect(() => {
-    if (!user || user.role === "USER") { router.push("/"); return; }
+    if (!user) { router.push("/login"); return; }
     fetchData();
   }, [user, router]);
 
@@ -80,7 +80,6 @@ export default function DashboardProductsPage() {
         body: JSON.stringify({
           ...form,
           price: parseFloat(form.price),
-          discountPrice: form.discountPrice ? parseFloat(form.discountPrice) : null,
           stock: parseInt(form.stock),
           images: allImages,
           features: form.features ? form.features.split(",").map(s => s.trim()).filter(Boolean) : [],
@@ -90,7 +89,7 @@ export default function DashboardProductsPage() {
       if (!res.ok) throw new Error(data.message);
       toast.success(t.dashboard.addProduct);
       setShowAddForm(false);
-      setForm({ name: "", description: "", price: "", discountPrice: "", stock: "0", sku: "", categoryId: "", images: "", features: "", deliveryInfo: "" });
+      setForm({ name: "", description: "", price: "", stock: "0", sku: "", categoryId: "", images: "", features: "", deliveryInfo: "" });
       setUploadedImages([]);
       fetchData();
     } catch (err: any) {
@@ -120,7 +119,6 @@ export default function DashboardProductsPage() {
                   <input className="input-field md:col-span-2" placeholder="პროდუქტის სახელი *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
                   <textarea className="input-field md:col-span-2" rows={3} placeholder="აღწერა" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
                   <input className="input-field" type="number" step="0.01" placeholder="ფასი *" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
-                  <input className="input-field" type="number" step="0.01" placeholder="ფასდაკლებული ფასი" value={form.discountPrice} onChange={(e) => setForm({ ...form, discountPrice: e.target.value })} />
                   <input className="input-field" type="number" placeholder="მარაგის რაოდენობა" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
                   <input className="input-field" placeholder="SKU" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
                   <select className="input-field" value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })} required>

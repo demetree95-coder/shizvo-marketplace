@@ -13,10 +13,6 @@ export function formatDateTime(date: string | Date): string {
   return `${formatDate(d)} ${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
 }
 
-export function calculateDiscount(price: number, discountPrice: number): number {
-  return Math.round(((price - discountPrice) / price) * 100);
-}
-
 export function slugify(text: string): string {
   return text
     .toLowerCase()

@@ -170,11 +170,9 @@ export default function Navbar() {
                         <Link href="/profile" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                           <HiOutlineUser className="w-4 h-4" /> {t.nav.profile}
                         </Link>
-                        {(user.role === "VENDOR" || user.role === "ADMIN") && (
-                          <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                            <HiOutlineSquares2X2 className="w-4 h-4" /> {t.nav.dashboard}
-                          </Link>
-                        )}
+                        <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                          <HiOutlineSquares2X2 className="w-4 h-4" /> {t.nav.dashboard}
+                        </Link>
                         {user.role === "ADMIN" && (
                           <Link href="/admin" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                             <HiOutlineSquares2X2 className="w-4 h-4" /> {t.nav.admin}
