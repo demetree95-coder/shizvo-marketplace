@@ -70,7 +70,7 @@ export default function HeroSection() {
           <Link href="/products" className="btn-primary text-base px-8 py-3.5 rounded-2xl">
             {t.hero.cta}
           </Link>
-          <Link href="/register" className="px-8 py-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold hover:bg-white/20 transition-all text-base">
+          <Link href="/dashboard/settings" className="px-8 py-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold hover:bg-white/20 transition-all text-base">
             {t.hero.registerShop}
           </Link>
         </motion.div>
