@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useT } from "@/lib/locale";
 import { useAuthStore } from "@/store/authStore";
-import { HiOutlinePlus } from "react-icons/hi2";
 
 export default function DashboardSettingsPage() {
   const { user, setUser } = useAuthStore();
@@ -14,6 +13,9 @@ export default function DashboardSettingsPage() {
   const [hasShop, setHasShop] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", logo: "", banner: "", contactEmail: "", contactPhone: "", facebook: "", instagram: "", tiktok: "", youtube: "", website: "" });
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
   const t = useT();
 
   useEffect(() => {
@@ -22,6 +24,29 @@ export default function DashboardSettingsPage() {
       if (data.shop) { setHasShop(true); setShop(data.shop); setForm({ name: data.shop.name, description: data.shop.description || "", logo: data.shop.logo || "", banner: data.shop.banner || "", contactEmail: data.shop.contactEmail || "", contactPhone: data.shop.contactPhone || "", facebook: data.shop.facebook || "", instagram: data.shop.instagram || "", tiktok: data.shop.tiktok || "", youtube: data.shop.youtube || "", website: data.shop.website || "" }); }
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user, router]);
+
+  const uploadFile = async (file: File, field: "logo" | "banner") => {
+    setUploading(field);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setForm((prev) => ({ ...prev, [field]: data.url }));
+      toast.success(`${field === "logo" ? "ლოგო" : "ბანერი"} აიტვირთა`);
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: "logo" | "banner") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    uploadFile(file, field);
+  };
 
   const createShop = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,8 +89,47 @@ export default function DashboardSettingsPage() {
             <form onSubmit={hasShop ? updateShop : createShop} className="space-y-4">
               <input className="input-field" placeholder={t.shop.name + " *"} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required={!hasShop} />
               <textarea className="input-field" rows={3} placeholder={t.shop.description} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              <input className="input-field" placeholder={t.shop.logo + " (URL)"} value={form.logo} onChange={(e) => setForm({ ...form, logo: e.target.value })} />
-              <input className="input-field" placeholder={t.shop.banner + " (URL)"} value={form.banner} onChange={(e) => setForm({ ...form, banner: e.target.value })} />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t.shop.logo}</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleFileChange(e, "logo")}
+                  />
+                  <button type="button" onClick={() => logoInputRef.current?.click()} disabled={uploading === "logo"} className="btn-secondary text-sm py-2">
+                    {uploading === "logo" ? "იტვირთება..." : "აირჩიე ფაილი"}
+                  </button>
+                  <input className="input-field flex-1" placeholder={t.shop.logo + " (URL)"} value={form.logo} onChange={(e) => setForm({ ...form, logo: e.target.value })} />
+                </div>
+                {form.logo && (
+                  <img src={form.logo} alt="logo preview" className="mt-2 h-16 w-16 object-cover rounded-lg border" />
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t.shop.banner}</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    ref={bannerInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleFileChange(e, "banner")}
+                  />
+                  <button type="button" onClick={() => bannerInputRef.current?.click()} disabled={uploading === "banner"} className="btn-secondary text-sm py-2">
+                    {uploading === "banner" ? "იტვირთება..." : "აირჩიე ფაილი"}
+                  </button>
+                  <input className="input-field flex-1" placeholder={t.shop.banner + " (URL)"} value={form.banner} onChange={(e) => setForm({ ...form, banner: e.target.value })} />
+                </div>
+                {form.banner && (
+                  <img src={form.banner} alt="banner preview" className="mt-2 h-24 w-full object-cover rounded-lg border" />
+                )}
+              </div>
+
               <input className="input-field" placeholder="ელ. ფოსტა" value={form.contactEmail} onChange={(e) => setForm({ ...form, contactEmail: e.target.value })} />
               <input className="input-field" placeholder="ტელეფონი" value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} />
               <div className="grid grid-cols-2 gap-4">

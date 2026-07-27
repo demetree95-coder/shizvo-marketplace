@@ -14,7 +14,7 @@ interface AuthState {
   setUser: (user: UserType | null) => void;
   setLoading: (loading: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: { email: string; password: string; fullName: string; phone?: string }) => Promise<void>;
+  register: (data: { email: string; password: string; fullName: string; phone?: string; captchaToken?: string }) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
   initAuth: () => void;
@@ -87,7 +87,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  register: async ({ email, password, fullName, phone }) => {
+  register: async ({ email, password, fullName, phone, captchaToken }) => {
     if (useFirebase()) {
       const { createUserWithEmailAndPassword } = await import("firebase/auth");
       const { auth } = await import("@/lib/firebase");
@@ -95,7 +95,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const token = await cred.user.getIdToken();
       const res = await api("/api/auth/register", {
         method: "POST",
-        body: JSON.stringify({ token, fullName, phone }),
+        body: JSON.stringify({ token, fullName, phone, captchaToken }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -106,7 +106,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } else {
       const res = await api("/api/auth/register", {
         method: "POST",
-        body: JSON.stringify({ email, password, fullName, phone }),
+        body: JSON.stringify({ email, password, fullName, phone, captchaToken }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
